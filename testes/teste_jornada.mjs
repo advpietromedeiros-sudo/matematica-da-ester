@@ -38,7 +38,7 @@ confere('J1 · contas, dicas e missões de todas as fases', j1.ruins && j1.ruins
 if (AUTO) { const a = res.some(x => !x); console.log(a ? 'AUTOTESTE OK: o erro plantado foi acusado' : 'AUTOTESTE FALHOU'); ws.close(); chrome.kill(); process.exit(a ? 0 : 1); }
 
 const j2 = await avalia("({mundos:document.querySelectorAll('.mundo').length,trancados:document.querySelectorAll('.mundo.trancado').length,livres:[...document.querySelectorAll('.no:not(:disabled)')].map(b=>b.dataset.fase)})");
-confere('J2 · mapa: 5 mundos; só a 1ª fase aberta no começo', j2.mundos === 5 && j2.trancados === 4 && j2.livres.length === 1 && j2.livres[0] === 't2', JSON.stringify(j2));
+confere('J2 · mapa: 6 mundos; só a 1ª fase aberta no começo', j2.mundos === 6 && j2.trancados === 5 && j2.livres.length === 1 && j2.livres[0] === 't2', JSON.stringify(j2));
 await print('J-1-mapa.png');
 const responder = async v => { for (const c of String(v)) await avalia(`document.querySelector('#teclado [data-t="${c}"]').click()`); await avalia("document.querySelector('#teclado [data-t=\"OK\"]').click()"); };
 // J3 · fase inteira certa: 3 estrelas, XP, cristais e a fase seguinte abre
@@ -141,6 +141,36 @@ const passosT = await avalia('__arm.atual()?.conta.passos.map(p=>p.resp)||[]');
 for (const v of passosT) await responder(v);
 const j18 = await avalia("({seguir:!document.getElementById('bSeguir').hidden,resp:document.getElementById('resp').textContent})");
 confere('J18 · ajuda da tabuada arma a conta do truque e resolvê-la responde a pergunta', temArm && passosT.length > 0 && j18.seguir && +j18.resp === t.r, JSON.stringify({ temArm, t, passosT, ...j18 }));
+await avalia("jornadaAPI.ir('mapa')");
+// J19 · treino espaçado em dois dias de calendário
+const fimDoTreino = async (errarEm = -1) => { let errada = null; for (let k = 0; k < 40; k++) { if (await avalia("document.getElementById('mFim').classList.contains('on')")) break; const q = await avalia('jornadaAPI.atual()'); if (k === errarEm) { errada = q.fato; await responder(q.r + 1); } await responder(q.r); await avalia("document.getElementById('bSeguir').click()"); await espera(60); } return errada; };
+await avalia("(s=>{s.srs={};s.dias=[];s.novosHoje=null;s._hoje='2026-11-01'})(jornadaAPI.estado());jornadaAPI.ir('mapa')");
+const d1 = await avalia("(p=>({dev:p.dev.length,nov:p.nov}))(jornadaAPI.planoDoDia())");
+await print('J-16-mapa-com-treino.png');
+await avalia("jornadaAPI.comecarTreino()"); await espera(300); await print('J-17-treino-conta-nova.png');
+await fimDoTreino(); await print('J-18-treino-fim.png');
+const s1 = await avalia("(s=>({srs:Object.entries(s.srs).map(([k,v])=>k+':'+v.caixa+'@'+v.proxima),dias:s.dias.slice()}))(jornadaAPI.estado())");
+await avalia("document.getElementById('bMapa').click()");
+await avalia("jornadaAPI.estado()._hoje='2026-11-02';jornadaAPI.ir('mapa')");
+const d2 = await avalia("(p=>({dev:p.dev.length,nov:p.nov.length}))(jornadaAPI.planoDoDia())");
+await avalia("jornadaAPI.comecarTreino()"); await espera(300);
+const errada = await fimDoTreino(5);
+const s2 = await avalia(`(s=>({errada:s.srs['${errada}'],outras:Object.entries(s.srs).filter(([k])=>k!=='${errada}').map(([k,v])=>v.caixa+'@'+v.proxima),seq:jornadaAPI.sequencia(),dias:s.dias.slice()}))(jornadaAPI.estado())`);
+await avalia("document.getElementById('bMapa').click()"); await avalia("jornadaAPI.ir('treino')"); await espera(200); await print('J-19-caixas.png');
+const ok19 = d1.dev === 0 && d1.nov.join() === '1x2,2x2,2x3,2x4,2x5' && s1.srs.every(x => x.endsWith(':1@2026-11-02')) && s1.dias.join() === '2026-11-01'
+  && d2.dev === 5 && d2.nov === 5 && s2.errada && s2.errada.caixa === 1 && s2.errada.proxima === '2026-11-03'
+  && s2.outras.filter(x => x === '2@2026-11-04').length === 4 && s2.outras.filter(x => x === '1@2026-11-03').length === 5 && s2.seq === 2;
+confere('J19 · repetição espaçada: 5 novas por dia; acerto sobe de caixa (volta em 2 dias); erro volta à caixa 1 (volta amanhã); sequência de 2 dias', ok19, JSON.stringify({ d1, s1, d2, errada, s2 }));
+// J20 · problema do dia a dia: história, barras, ajuda em duas etapas e conta armada
+await avalia("delete jornadaAPI.estado()._hoje;jornadaAPI.estado().liberar=true;jornadaAPI.comecar('p4')"); await espera(300);
+const pr = await avalia("({miss:document.getElementById('missao').textContent,bm:document.querySelectorAll('#visual .bm').length})");
+await print('J-20-problema-barras.png');
+await avalia("document.getElementById('bAjuda').click()"); await espera(200);
+const prA = await avalia("({arm:!!document.querySelector('#armBox .arm'),dica:document.getElementById('dica').textContent})");
+await print('J-21-problema-ajuda.png');
+const passosP = await avalia('__arm.atual()?.conta.passos.map(p=>p.resp)||[]'); for (const v of passosP) await responder(v);
+const prF = await avalia("({seguir:!document.getElementById('bSeguir').hidden,resp:document.getElementById('resp').textContent,r:jornadaAPI.atual().r})");
+confere('J20 · problema: história + modelo de barras; ajuda com as duas etapas e a conta armada', /Problema/.test(pr.miss) && pr.bm > 0 && prA.arm && /Duas etapas/.test(prA.dica) && prF.seguir && +prF.resp === prF.r, JSON.stringify({ pr, prA, prF }));
 await avalia("jornadaAPI.ir('mapa')");
 confere('J10 · zero erro de JavaScript', erros.length === 0, erros.join(' | '));
 ws.close(); chrome.kill();

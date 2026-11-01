@@ -142,6 +142,24 @@ svg.reta text{fill:var(--tinta);font:800 15px "Segoe UI",sans-serif}
 .caixa h2{margin:0;font-size:32px}.grandes{font-size:48px;letter-spacing:6px;color:var(--amarelo);text-shadow:0 0 18px var(--amarelo)}
 .premios{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:12px 0}
 .loja{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
+/* treino diário (repetição espaçada) */
+.treinoCard{padding:16px 18px;display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;margin-bottom:16px;border-color:rgba(255,211,77,.5);box-shadow:0 0 26px rgba(255,211,77,.18)}
+.treinoCard .grande{font-size:46px}.treinoCard h2{margin:0;font-size:24px}.treinoCard p{margin:4px 0 0;color:var(--suave);font-weight:700}
+.caixas{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin:14px 0}
+.caixa{padding:10px;text-align:center;border-radius:14px;border:1px solid var(--borda);background:rgba(255,255,255,.05)}
+.caixa b{display:block;font-size:32px}.caixa small{color:var(--suave);font-weight:700}
+.mapaSrs{display:grid;grid-template-columns:repeat(11,minmax(28px,1fr));gap:4px;max-width:620px;margin:10px auto}
+.mapaSrs div{aspect-ratio:1;border-radius:8px;display:grid;place-items:center;font-weight:800;font-size:14px;background:rgba(255,255,255,.05)}
+.mapaSrs .cab{background:rgba(155,107,255,.35)}
+.mapaSrs .c1{background:rgba(255,93,115,.4)}.mapaSrs .c2{background:rgba(255,159,67,.4)}.mapaSrs .c3{background:rgba(255,211,77,.4)}.mapaSrs .c4{background:rgba(60,240,143,.35)}.mapaSrs .c5{background:rgba(56,225,255,.4)}.mapaSrs .c6{background:linear-gradient(135deg,var(--ciano),var(--roxo));color:#06102a}
+/* modelo de barras (problemas) */
+.bms{display:flex;flex-direction:column;gap:12px;width:min(660px,100%);margin:6px auto}
+.bm{display:grid;height:54px;border-radius:10px;overflow:hidden;border:2px solid var(--borda)}
+.bm>div{display:grid;place-items:center;font-weight:900;font-size:19px;border-right:2px solid rgba(7,11,29,.6);white-space:nowrap;overflow:hidden}
+.bm>div:last-child{border-right:0}
+.bm .p1{background:rgba(56,225,255,.35)}.bm .p2{background:rgba(255,79,163,.35)}.bm .pq{background:repeating-linear-gradient(45deg,rgba(255,211,77,.28) 0 10px,transparent 10px 20px);color:var(--amarelo)}
+.chaveBm{text-align:center;font-weight:900;color:var(--amarelo);border-top:3px solid var(--amarelo);border-radius:0 0 50% 50%/0 0 14px 14px;padding-top:4px}
+.nomeBm{display:grid;grid-template-columns:110px 1fr;align-items:center;gap:8px;font-weight:800}
 .item{padding:14px;text-align:center}.item .ic{font-size:40px}.item b{display:block;margin:6px 0}
 .item.usando{border-color:var(--verde);box-shadow:0 0 14px rgba(60,240,143,.45)}
 .pais p,.pais li{color:#d7e2ff}
@@ -156,15 +174,27 @@ canvas#confete{position:fixed;inset:0;pointer-events:none;z-index:60}
  <div class="xp"><small id="hXp">0 / 100 XP</small><div class="barra"><i id="hXpBar"></i></div></div>
  <div class="chip" title="Cristais">💎 <span id="hCristais">0</span></div>
  <div class="chip" title="Medalhas">🏅 <span id="hMedalhas">0</span></div>
- <nav><button data-ir="mapa" class="on">🗺️ Mapa</button><button data-ir="loja">🎒 Armário</button><button data-ir="pais">👨‍👩‍👧 Pais</button><button id="bSom" title="Som liga/desliga">🔊</button></nav>
+ <nav><button data-ir="mapa" class="on">🗺️ Mapa</button><button data-ir="treino">🧠 Treino</button><button data-ir="loja">🎒 Armário</button><button data-ir="pais">👨‍👩‍👧 Pais</button><button id="bSom" title="Som liga/desliga">🔊</button></nav>
 </header>
 <main>
  <section class="tela on" id="tMapa">
   <div class="topo">
    <div class="vidro heroi" style="padding:14px"><svg class="ava" id="avaMapa" viewBox="0 0 200 226" aria-label="Ester, a personagem"></svg><div class="fala" id="falaMapa"></div></div>
-   <div class="vidro" style="padding:16px"><b style="color:var(--ciano)">MISSÃO</b><p style="margin:6px 0 0">Atravesse os 5 mundos: <b>Tabuada → Adição → Subtração → Multiplicação → Divisão</b>. Cada fase tem 8 desafios e termina com uma <b>missão em história</b>. Sem relógio: pense com calma e use a <b>ajuda</b> quando quiser.</p></div>
+   <div class="vidro" style="padding:16px"><b style="color:var(--ciano)">MISSÃO</b><p style="margin:6px 0 0">Todo dia, comece pelo <b>🧠 Treino da tabuada</b> (uns 5 minutos). Depois atravesse os 6 mundos: <b>Tabuada → Adição → Subtração → Multiplicação → Divisão → Problemas do dia a dia</b>. Cada fase tem 8 desafios e termina com uma <b>missão em história</b>. Sem relógio: pense com calma e use a <b>ajuda</b> quando quiser.</p></div>
   </div>
+  <div class="vidro treinoCard" id="cardTreino"></div>
   <div class="mundos" id="mundos"></div>
+ </section>
+
+ <section class="tela" id="tTreino">
+  <div class="vidro" style="padding:18px">
+   <h2 style="margin-top:0">🧠 Treino diário da tabuada <small id="trData" style="color:var(--suave);font-size:16px"></small></h2>
+   <p style="color:var(--suave);margin:0">Cada conta mora numa <b>caixa</b>. Acertou de primeira: ela sobe de caixa e volta mais tarde (1, 2, 4, 7, 14 e 30 dias). Errou: volta para a caixa 1 e aparece amanhã de novo. As contas novas entram aos poucos (5 por dia), na ordem das tabuadas.</p>
+   <div class="caixas" id="trCaixas"></div>
+   <div class="acoes"><button class="btn neon" id="bTreino2">▶ Começar o treino de hoje</button></div>
+   <h3 style="text-align:center">Mapa da memória</h3><div class="mapaSrs" id="trMapa"></div>
+   <p id="trResumo" style="text-align:center;font-weight:800"></p>
+  </div>
  </section>
 
  <section class="tela" id="tFase">
@@ -401,6 +431,34 @@ function qDivArmada(min,max){let d,D;do{d=rnd(2,9);D=d*rnd(Math.ceil(min/d),Math
   hist:()=>`${D} figurinhas vão ser divididas igualmente em ${d} álbuns. Quantas ficam em cada álbum?`}}
 function qDiv(tabs){const g=pick(tabs),c=rnd(1,10),t=g*c;return{p:`${t} ÷ ${g}`,r:c,ver:(el,aj)=>aj?vEstrutura(el,g,c):(el.innerHTML=`<div class="cabeca">🔎 Pense na tabuada: <b>${g} × ? = ${t}</b></div>`),dica:()=>`Divisão é a tabuada ao contrário: ${g} × ? = ${t}. Como ${g} × ${c} = ${t}, então ${t} ÷ ${g} = ${c}.`,fato:Math.min(g,c)+'x'+Math.max(g,c),hist:()=>`${pick(NOMES)} guardou ${t} cristais em sacos com ${g} em cada. Quantos sacos usou?`}}
 
+/* =================== PROBLEMAS DO DIA A DIA (modelo de barras, de Singapura) ===================
+   Três desenhos-base: parte-todo, comparação e grupos iguais. A barra mostra o que se sabe e o "?" do que se pergunta. */
+const cap=s=>s[0].toUpperCase()+s.slice(1);
+const PESSOAS=['Ester','a vovó','o papai','a mamãe','a prima Bia','o tio Léo'];
+function vBarras(el,m){const W=v=>Math.max(1,v)+'fr';let h='<div class="bms">';
+ if(m.tipo==='partes')h+=`<div class="bm" style="grid-template-columns:${m.partes.map(p=>W(p[0])).join(' ')}">${m.partes.map((p,j)=>`<div class="${p[1]==='?'?'pq':j?'p2':'p1'}">${p[1]}</div>`).join('')}</div><div class="chaveBm">${m.total}</div>`;
+ else if(m.tipo==='comparar'){const mx=Math.max(...m.barras.map(b=>b.v));m.barras.forEach((b,j)=>{const resto=mx-b.v;h+=`<div class="nomeBm"><span>${b.nome}</span><div class="bm" style="grid-template-columns:${W(b.v)}${resto?' '+W(resto):''}"><div class="${j?'p2':'p1'}">${b.v}</div>${resto?'<div class="pq">?</div>':''}</div></div>`})}
+ else if(m.tipo==='iguais')h+=`<div class="bm" style="grid-template-columns:repeat(${m.n},1fr)">${Array.from({length:m.n},()=>`<div class="p1">${m.rot}</div>`).join('')}</div><div class="chaveBm">${m.total}</div>`;
+ else if(m.tipo==='repartir')h+=`<div class="chaveBm" style="border-top:0;border-bottom:3px solid var(--amarelo);border-radius:50% 50% 0 0/14px 14px 0 0;padding:0 0 4px">${m.total}</div><div class="bm" style="grid-template-columns:repeat(${m.n},1fr)">${Array.from({length:m.n},()=>'<div class="pq">?</div>').join('')}</div>`;
+ el.innerHTML=h+'</div>'}
+function qProb(tipo){const quem=pick(PESSOAS);let a,b,r,p,hist,m,dica,arm=null;
+ if(tipo==='juntar'){a=rnd(12,58);b=rnd(8,39);const obj=pick(['figurinhas','adesivos','bolinhas de gude','cartas']);r=a+b;p=`${a} + ${b}`;hist=`${cap(quem)} tinha ${a} ${obj} e ganhou mais ${b}. Com quantas ficou?`;
+  m={tipo:'partes',partes:[[a,a],[b,b]],total:'? ao todo'};dica=`Juntar é somar: ${a} + ${b} = ${r}.`;arm=armarSoma(a,b)}
+ else if(tipo==='troco'){a=rnd(3,18);b=a>=10?pick([20,50]):pick([10,20,50]);const item=pick(['um lanche','um livro','uma bola','um caderno']);r=b-a;p=`${b} − ${a}`;
+  hist=`${cap(quem)} comprou ${item} de R$ ${a} e pagou com uma nota de R$ ${b}. Quanto recebeu de troco?`;m={tipo:'partes',partes:[[a,'R$ '+a],[r,'?']],total:'nota de R$ '+b};dica=`O troco é o que sobra da nota: ${b} − ${a} = ${r}.`;arm=armarSub(b,a)}
+ else if(tipo==='comparar'){a=rnd(25,70);b=rnd(10,a-5);const n1=pick(['Ana','Lia','Duda']),n2=pick(['Ester','Bia','Malu']),obj=pick(['figurinhas','pulseiras','adesivos']);r=a-b;p=`${a} − ${b}`;
+  hist=`${n1} tem ${a} ${obj} e ${n2} tem ${b}. Quantas ${obj} ${n1} tem a mais que ${n2}?`;m={tipo:'comparar',barras:[{nome:n1,v:a},{nome:n2,v:b}]};dica=`Compare as barras: o pedaço que falta é a diferença, ${a} − ${b} = ${r}.`;arm=armarSub(a,b)}
+ else if(tipo==='grupos'){a=rnd(3,9);b=rnd(3,9);r=a*b;p=`${a} × ${b}`;hist=`${cap(quem)} comprou ${a} pacotes com ${b} balas em cada um. Quantas balas ao todo?`;
+  m={tipo:'iguais',n:a,rot:b,total:'? balas'};dica=`${a} grupos iguais de ${b}: ${a} × ${b} = ${r}.`;arm=contaDoTruque(a,b)}
+ else if(tipo==='tempo'){a=rnd(3,7);b=pick([10,15,20,30]);r=a*b;p=`${a} × ${b}`;hist=`Ester treinou tabuada ${b} minutos por dia durante ${a} dias. Quantos minutos ao todo?`;
+  m={tipo:'iguais',n:a,rot:b+' min',total:'? minutos'};dica=`${a} dias de ${b} minutos: ${a} × ${b} = ${r}.`;arm=armarMult(b,a)}
+ else if(tipo==='repartir'){const g=rnd(2,6),c=rnd(3,9),t=g*c;r=c;p=`${t} ÷ ${g}`;hist=`A mamãe fez ${t} biscoitos e repartiu igualmente entre ${g} crianças. Quantos biscoitos cada criança ganhou?`;
+  m={tipo:'repartir',n:g,total:t+' biscoitos'};dica=`Repartir igualmente é dividir: ${t} ÷ ${g} = ${c}, porque ${g} × ${c} = ${t}.`}
+ else{const qtd=rnd(2,5),pr=rnd(2,6),tot=qtd*pr;b=tot<20?pick([20,50]):50;r=b-tot;/* a nota é sempre maior que o gasto: troco nunca negativo */p=`${b} − ${tot}`;
+  hist=`${cap(quem)} comprou ${qtd} sorvetes de R$ ${pr} cada e pagou com uma nota de R$ ${b}. Quanto recebeu de troco?`;m={tipo:'partes',partes:[[tot,`${qtd} × R$ ${pr}`],[r,'?']],total:'nota de R$ '+b};
+  dica=`Duas etapas. 1º) Quanto gastou: ${qtd} × ${pr} = ${tot}. 2º) O troco: ${b} − ${tot} = ${r}.`;arm=armarSub(b,tot)}
+ return{p,r,problema:true,hist:()=>hist,ver:(el)=>vBarras(el,m),dica:()=>dica,arm:()=>arm}}
+
 /* =================== MUNDOS E FASES =================== */
 const M=(n,ic,cor,fases)=>({n,ic,cor,fases});
 const MUNDOS=[
@@ -442,12 +500,18 @@ const MUNDOS=[
   {id:'d4',n:'Tabuada ao contrário (6 a 9)',ic:'🔄',ensina:'Se 7 × 8 = 56, então 56 ÷ 7 = 8.',g:()=>qDiv([6,7,8,9])},
   {id:'d5',n:'Divisão na chave',ic:'🔑',ensina:'84 ÷ 4 na chave: o 4 cabe 2 vezes no 8; 2 × 4 = 8; 8 − 8 = 0; desce o 4; o 4 cabe 1 vez no 4. Resposta: 21.',g:()=>qDivArmada(20,99)},
   {id:'d6',n:'Chave grande',ic:'🗝️',ensina:'Com 3 números é igual: cabe quantas vezes, multiplica, subtrai, desce o próximo. Passo a passo!',g:()=>qDivArmada(100,500)},
-  {id:'dchefe',n:'Rainha do Castelo',ic:'👸',chefe:true,ensina:'Chefão final: todas as divisões. Você chegou longe!',g:()=>pick([qRepartir,()=>qDiv([2,3,4,5,6,7,8,9,10]),()=>qDivArmada(20,99)])()}])];
+  {id:'dchefe',n:'Rainha do Castelo',ic:'👸',chefe:true,ensina:'Chefão do castelo: todas as divisões. Depois, a Vila dos Problemas!',g:()=>pick([qRepartir,()=>qDiv([2,3,4,5,6,7,8,9,10]),()=>qDivArmada(20,99)])()}]),
+ M('Vila dos Problemas','🏘️','#ffd34d',[
+  {id:'p1',n:'Juntar e troco',ic:'🛒',ensina:'Problema: leia, descubra o que a pergunta quer, desenhe a barra e só então faça a conta.',g:()=>qProb(pick(['juntar','troco']))},
+  {id:'p2',n:'Quem tem mais?',ic:'⚖️',ensina:'Comparar: duas barras, uma embaixo da outra. O pedaço que sobra é a diferença.',g:()=>qProb('comparar')},
+  {id:'p3',n:'Grupos e repartir',ic:'🍪',ensina:'Grupos iguais é multiplicar; repartir igualmente é dividir.',g:()=>qProb(pick(['grupos','tempo','repartir']))},
+  {id:'p4',n:'Duas etapas',ic:'🪜',ensina:'Alguns problemas têm duas contas: primeiro descubra o que falta, depois responda a pergunta.',g:()=>qProb('duas')},
+  {id:'pchefe',n:'Prefeito da Vila',ic:'🎩',chefe:true,ensina:'Chefão: problemas de todo tipo. Leia com calma!',g:()=>qProb(pick(['juntar','troco','comparar','grupos','tempo','repartir','duas']))}])];
 const TODAS=MUNDOS.flatMap((m,mi)=>m.fases.map((f,fi)=>({...f,mi,fi})));
 
 /* =================== ESTADO, XP, RECOMPENSAS =================== */
 const CHAVE='jornada-ester:v1';
-let estado={xp:0,cristais:0,fases:{},itens:['faixa-neon'],equipado:['faixa-neon'],fatos:{},medalhas:[],liberar:false,som:true};
+let estado={xp:0,cristais:0,fases:{},itens:['faixa-neon'],equipado:['faixa-neon'],fatos:{},medalhas:[],liberar:false,som:true,srs:{},dias:[],novosHoje:null};
 try{const s=JSON.parse(localStorage.getItem(CHAVE)||'null');if(s&&s.fases)estado=Object.assign(estado,s)}catch(e){}
 function salvar(){try{localStorage.setItem(CHAVE,JSON.stringify(estado))}catch(e){}hud()}
 const nivelDe=xp=>Math.floor(Math.sqrt(xp/60))+1, xpDoNivel=n=>60*(n-1)*(n-1);
@@ -462,13 +526,59 @@ let actx=null;function som(tipo){if(!estado.som)return;try{actx=actx||new (windo
 function confete(){const c=$('confete'),x=c.getContext('2d');c.width=innerWidth;c.height=innerHeight;const ps=[...Array(140)].map(()=>({x:innerWidth/2,y:innerHeight/3,vx:(Math.random()-.5)*14,vy:Math.random()*-12-4,c:pick(['#38e1ff','#ff4fa3','#ffd34d','#3cf08f','#9b6bff']),s:4+Math.random()*6,v:Math.random()*6}));
  let t=0;(function f(){x.clearRect(0,0,c.width,c.height);ps.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.35;p.v+=.2;x.fillStyle=p.c;x.save();x.translate(p.x,p.y);x.rotate(p.v);x.fillRect(-p.s/2,-p.s/2,p.s,p.s*1.6);x.restore()});if(++t<110)requestAnimationFrame(f);else x.clearRect(0,0,c.width,c.height)})()}
 
+/* =================== TREINO DIÁRIO DA TABUADA (repetição espaçada, caixas de Leitner) ===================
+   Cada conta (7 × 8 e 8 × 7 são a mesma) mora numa caixa de 1 a 6. Acertou de primeira, sem ajuda: sobe uma
+   caixa. Errou ou usou ajuda: volta para a caixa 1. A caixa diz em quantos dias a conta volta. */
+const ORDEM_TAB=[2,10,5,1,3,4,9,6,7,8];
+const ORDEM_FATOS=(()=>{const vistos=new Set(),out=[];for(const t of ORDEM_TAB)for(let n=1;n<=10;n++){const k=Math.min(t,n)+'x'+Math.max(t,n);if(!vistos.has(k)){vistos.add(k);out.push(k)}}return out})();
+const INTERVALO=[0,1,2,4,7,14,30],NOVOS_POR_DIA=5,MAX_SESSAO=15;
+const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+function hoje(){return estado._hoje||iso(new Date())}
+function somaDias(s,n){const [a,m,d]=s.split('-').map(Number);return iso(new Date(a,m-1,d+n))}
+const fmtData=s=>s.split('-').reverse().join('/');
+function devidos(){const h=hoje();return Object.entries(estado.srs).filter(([k,v])=>v.proxima<=h).sort((x,y)=>x[1].caixa-y[1].caixa||x[1].proxima.localeCompare(y[1].proxima)).map(([k])=>k)}
+function novosDisponiveis(){const h=hoje(),ja=estado.novosHoje&&estado.novosHoje.data===h?estado.novosHoje.n:0;return Math.max(0,NOVOS_POR_DIA-ja)}
+function planoDoDia(){const dev=devidos().slice(0,MAX_SESSAO),livres=Math.min(novosDisponiveis(),MAX_SESSAO-dev.length);return{dev,nov:ORDEM_FATOS.filter(k=>!estado.srs[k]).slice(0,Math.max(0,livres))}}
+function qFato(k,novo){const [x,y]=k.split('x').map(Number),[a,b]=Math.random()<.5?[x,y]:[y,x];
+ return{p:`${a} × ${b}`,r:a*b,ver:(el)=>vEstrutura(el,a,b),arm:()=>contaDoTruque(a,b),dica:()=>estrMult(a,b).texto,fato:k,srsKey:k,novo,hist:()=>`${a} × ${b}`}}
+function sequencia(){const ds=new Set(estado.dias);let n=0,d=hoje();if(!ds.has(d))d=somaDias(d,-1);while(ds.has(d)){n++;d=somaDias(d,-1)}return n}
+function marcarSRS(q,limpo){if(!F||!F.srs||q.srsFeito||!q.srsKey)return;q.srsFeito=true;const o=estado.srs[q.srsKey]||{caixa:0,vistos:0,acertos:0};
+ o.vistos++;if(limpo){o.acertos++;o.caixa=Math.min(6,o.caixa+1)}else o.caixa=1;o.proxima=somaDias(hoje(),INTERVALO[o.caixa]);estado.srs[q.srsKey]=o;
+ if(q.novo){const h=hoje();if(!estado.novosHoje||estado.novosHoje.data!==h)estado.novosHoje={data:h,n:0};estado.novosHoje.n++}}
+function comecarTreino(){const {dev,nov}=planoDoDia();if(!dev.length&&!nov.length){ir('treino');return}
+ F={id:'treino',n:'Treino do dia',srs:true,mi:-1,fi:0,ensina:''};fila=[...nov.map(k=>qFato(k,true)),...dev.map(k=>qFato(k,false))];
+ N=fila.length;i=0;acertos=0;ajudas=0;repetir=[];resultados=[];ir('fase');document.querySelectorAll('.hud nav [data-ir]').forEach(b=>b.classList.remove('on'));
+ $('tituloFase').textContent=`🧠 Treino do dia · ${fmtData(hoje())}`;
+ reagir('feliz',['avaFase'],`Treino de hoje: ${nov.length} conta${nov.length===1?'':'s'} nova${nov.length===1?'':'s'} e ${dev.length} para lembrar. Sem pressa!`);mostrar()}
+function terminarTreino(){const h=hoje(),primeira=!estado.dias.includes(h);if(primeira)estado.dias.push(h);const seq=sequencia(),premios=[];
+ if(primeira){const ganho=5+Math.min(seq,7)*2;estado.cristais+=ganho;premios.push(`💎 +${ganho}`);if(seq>=7&&!estado.medalhas.includes('fogo7')){estado.medalhas.push('fogo7');premios.push('🏅 7 dias seguidos!')}}
+ salvar();const amanha=Object.values(estado.srs).filter(v=>v.proxima<=somaDias(h,1)).length;
+ avatar($('avaFim'),'festa');$('fimTitulo').textContent='Treino do dia completo!';$('fimEstrelas').textContent=`🔥 ${seq} dia${seq===1?'':'s'}`;
+ $('fimPremios').innerHTML=premios.map(p=>`<span class="chip">${p}</span>`).join('');
+ $('fimTexto').textContent=`${acertos} de ${N} de primeira. Amanhã voltam ${amanha} conta${amanha===1?'':'s'} para lembrar, e entram contas novas. Volte amanhã para a sequência crescer!`;
+ $('mFim').classList.add('on');som('fim');confete()}
+function treino(){const h=hoje(),{dev,nov}=planoDoDia();$('trData').textContent='· '+fmtData(h);
+ const cont=[0,0,0,0,0,0,0];for(const v of Object.values(estado.srs))cont[v.caixa]++;
+ const nomes=['','Caixa 1 · todo dia','Caixa 2 · 2 dias','Caixa 3 · 4 dias','Caixa 4 · 1 semana','Caixa 5 · 2 semanas','⭐ Guardadas · 1 mês'];
+ $('trCaixas').innerHTML=[1,2,3,4,5,6].map(c=>`<div class="caixa"><b>${cont[c]}</b><small>${nomes[c]}</small></div>`).join('');
+ let g='<div class="cab">×</div>';for(let c=1;c<=10;c++)g+=`<div class="cab">${c}</div>`;
+ for(let r=1;r<=10;r++){g+=`<div class="cab">${r}</div>`;for(let c=1;c<=10;c++){const v=estado.srs[Math.min(r,c)+'x'+Math.max(r,c)];g+=`<div class="${v?'c'+v.caixa:''}" title="${r} × ${c}${v?' · caixa '+v.caixa:''}">${v?r*c:''}</div>`}}
+ $('trMapa').innerHTML=g;const vistas=Object.keys(estado.srs).length,boas=Object.values(estado.srs).filter(v=>v.caixa>=5).length;
+ $('trResumo').textContent=`Contas já vistas: ${vistas} de 55 · bem guardadas (caixa 5 ou 6): ${boas} de 55 · sequência: 🔥 ${sequencia()} dia${sequencia()===1?'':'s'}`;
+ const tot=dev.length+nov.length;$('bTreino2').disabled=!tot;$('bTreino2').textContent=tot?`▶ Começar o treino de hoje (${tot} contas)`:'✅ Treino de hoje feito! Volte amanhã.'}
+$('bTreino2').onclick=comecarTreino;
+
 /* =================== TELAS =================== */
 function ir(t){document.querySelectorAll('.tela').forEach(s=>s.classList.toggle('on',s.id==='t'+t[0].toUpperCase()+t.slice(1)));document.querySelectorAll('.hud nav [data-ir]').forEach(b=>b.classList.toggle('on',b.dataset.ir===t));
- if(t==='mapa')mapa();if(t==='loja')loja();if(t==='pais')pais();scrollTo(0,0)}
+ if(t==='mapa')mapa();if(t==='treino')treino();if(t==='loja')loja();if(t==='pais')pais();scrollTo(0,0)}
 document.querySelectorAll('.hud nav [data-ir]').forEach(b=>b.onclick=()=>ir(b.dataset.ir));
 $('bSom').onclick=()=>{estado.som=!estado.som;salvar()};
 const FALAS_MAPA=['Pronta para a próxima missão? Escolha uma fase brilhando!','Cada fase é pequena. Um pouquinho por dia e a gente chega no castelo!','Lembra: sem pressa. Pensar com calma é o superpoder!'];
-function mapa(){avatar($('avaMapa'),'feliz');$('falaMapa').textContent=pick(FALAS_MAPA);const box=$('mundos');box.innerHTML='';
+function mapa(){avatar($('avaMapa'),'feliz');const {dev,nov}=planoDoDia(),tot=dev.length+nov.length,seq=sequencia();
+ $('falaMapa').textContent=tot?'Comece pelo 🧠 treino do dia: é rapidinho e faz a tabuada ficar na memória!':pick(FALAS_MAPA);
+ $('cardTreino').innerHTML=`<div class="grande">🧠</div><div><h2>Treino do dia da tabuada</h2><p>${tot?`Hoje: ${nov.length} conta${nov.length===1?'':'s'} nova${nov.length===1?'':'s'} e ${dev.length} para lembrar · uns 5 minutos`:'Treino de hoje feito! ✅ Volte amanhã'} · 🔥 ${seq} dia${seq===1?'':'s'} seguido${seq===1?'':'s'}</p></div><div class="acoes" style="margin:0"><button class="btn neon" id="bTreino" ${tot?'':'disabled'}>${tot?'▶ Treinar':'✅ Feito'}</button><button class="btn" id="bVerTreino">📦 Caixas</button></div>`;
+ $('bTreino').onclick=comecarTreino;$('bVerTreino').onclick=()=>ir('treino');
+ const box=$('mundos');box.innerHTML='';
  MUNDOS.forEach((m,mi)=>{const lib=mundoLiberado(mi),feitas=m.fases.filter(f=>estado.fases[f.id]?.estrelas).length;
   const d=document.createElement('div');d.className='vidro mundo'+(lib?'':' trancado');d.style.setProperty('--cor',m.cor);
   d.innerHTML=`<h2>${m.ic} Mundo ${mi+1} · ${m.n} <small>${feitas} de ${m.fases.length} fases${lib?'':' · 🔒 vença o chefão do mundo anterior'}</small></h2><div class="trilha"></div>`;
@@ -477,19 +587,21 @@ function mapa(){avatar($('avaMapa'),'feliz');$('falaMapa').textContent=pick(FALA
    b.innerHTML=`<span class="ic">${ok?f.ic:'🔒'}</span>${f.n}<span class="est">${'★'.repeat(est)}${'☆'.repeat(3-est)}</span>`;b.onclick=()=>comecar(F);tr.appendChild(b)});box.appendChild(d)})}
 
 /* =================== JOGAR UMA FASE =================== */
-const N=8;let apaga=0,F=null,fila=[],i=0,acertos=0,ajudas=0,digitado='',errouAtual=false,usouAjuda=false,repetir=[],resultados=[];
+let N=8,apaga=0,F=null,fila=[],i=0,acertos=0,ajudas=0,digitado='',errouAtual=false,usouAjuda=false,repetir=[],resultados=[];
 function revisao(f){ // fases já vencidas (de qualquer mundo), menos a atual; a conta volta sem figura
  const feitas=TODAS.filter(x=>x.id!==f.id&&!x.chefe&&estado.fases[x.id]?.estrelas);if(!feitas.length)return null;const q=pick(feitas).g();q.revisao=true;return q}
-function comecar(f){F=f;fila=[];for(let k=0;k<N-1;k++)fila.push(f.g());
+function comecar(f){F=f;N=8;fila=[];for(let k=0;k<N-1;k++)fila.push(f.g());
  if(!f.chefe)[5,6].forEach(k=>{const r=revisao(f);if(r)fila[k]=r});
  const ult=f.g();ult.missao=true;fila.push(ult);
  i=0;acertos=0;ajudas=0;repetir=[];resultados=[];ir('fase');document.querySelectorAll('.hud nav [data-ir]').forEach(b=>b.classList.remove('on'));
  $('tituloFase').textContent=`Mundo ${f.mi+1} · ${f.n}`;reagir('feliz',['avaFase'],'💡 '+f.ensina+(f.chefe?'':' Primeiro com figura, depois ela some: você vai fazer de cabeça!'));mostrar()}
 function pontos(){$('pontos').innerHTML=fila.map((q,k)=>`<i class="${k<resultados.length?(resultados[k]==='ok'?'ok':'aj'):k===i?'at':''}"></i>`).join('')}
 function mostrar(){const q=fila[i];digitado='';errouAtual=false;usouAjuda=false;$('resp').textContent='';$('dica').hidden=true;$('bSeguir').hidden=true;$('bAjuda').hidden=false;
- if(q.missao){$('missao').hidden=false;$('missao').textContent='📜 Missão: '+q.hist();$('pergunta').textContent='= ?'}else{$('missao').hidden=true;$('pergunta').textContent=q.p+' = ?'}
+ if(q.missao||q.problema){$('missao').hidden=false;$('missao').textContent=(q.problema?'📝 Problema: ':'📜 Missão: ')+q.hist();$('pergunta').textContent='= ?'}else{$('missao').hidden=true;$('pergunta').textContent=q.p+' = ?'}
  clearTimeout(apaga);const cab=t=>{$('visual').innerHTML=`<div class="cabeca">${t}</div>`};
- if(F.chefe)cab('🐉 Chefão: só números! A figura aparece na 💡 Ajuda.');
+ if(F.srs){if(q.novo){q.ver($('visual'),false);$('visual').insertAdjacentHTML('afterbegin','<div class="passo"><small>✨ Conta nova!</small>Olhe a figura: ela mostra o truque. Depois, de cabeça.</div>')}else cab('🧠 Do treino: lembre de cabeça. Se precisar, use a 💡 Ajuda.')}
+ else if(F.chefe)cab('🐉 Chefão: só números! A figura aparece na 💡 Ajuda.');
+ else if(q.problema){if(i<3)q.ver($('visual'),false);else cab('📝 Desenhe a barra na cabeça (ou num papel)! Se precisar, use a 💡 Ajuda.')}
  else if(q.revisao)cab('🔁 Revisão de uma fase que você já venceu: só com a cabeça!');
  else if(i>=5||q.missao)cab('🧠 Agora só com a cabeça! Se precisar, use a 💡 Ajuda.');
  else{q.ver($('visual'),false);if(i>=2)apaga=setTimeout(()=>{if(!usouAjuda&&$('bSeguir').hidden)cab('👀 Viu a forma? Agora pense na conta!')},2000)}
@@ -504,7 +616,7 @@ function ajuda(){const q=fila[i];usouAjuda=true;clearTimeout(apaga);
 $('bAjuda').onclick=ajuda;
 function registrarFato(q,ok){if(!q.fato)return;const f=estado.fatos[q.fato]||(estado.fatos[q.fato]={ok:0,erro:0,seq:0});if(ok){f.ok++;f.seq++}else{f.erro++;f.seq=0}}
 const VIVA=['Isso! 🎉','Mandou bem!','Você viu a conta!','Uau, que estratégia!','Acertou!','Arrasou! 💎'];
-function acertou(q){const limpo=!errouAtual&&!usouAjuda;resultados.push(limpo?'ok':'aj');if(i<N){if(limpo)acertos++;else ajudas++}registrarFato(q,limpo);
+function acertou(q){const limpo=!errouAtual&&!usouAjuda;resultados.push(limpo?'ok':'aj');if(i<N){if(limpo)acertos++;else ajudas++}registrarFato(q,limpo);marcarSRS(q,limpo);
  estado.xp+=limpo?10:5;salvar();som('ok');reagir('festa',['avaFase'],pick(VIVA)+(limpo?' +10 XP':' +5 XP (com ajuda também vale!)'));
  $('resp').textContent=q.r;if(!usouAjuda&&!AR){q.ver($('visual'),true)}$('bSeguir').hidden=false;$('bAjuda').hidden=true;$('bSeguir').focus({preventScroll:true});pontos()}
 function conferir(){if(!$('bSeguir').hidden)return;const q=fila[i];
@@ -515,12 +627,12 @@ function conferir(){if(!$('bSeguir').hidden)return;const q=fila[i];
   return}
  if(!digitado)return;
  if(+digitado===q.r)acertou(q);
- else{if(!errouAtual){registrarFato(q,false);repetir.push(q)}errouAtual=true;som('erro');reagir('ops',['avaFase'],'Quase! Vamos olhar a figura juntas.');ajuda();digitado='';$('resp').textContent=''}}
+ else{if(!errouAtual){registrarFato(q,false);marcarSRS(q,false);repetir.push(q)}errouAtual=true;som('erro');reagir('ops',['avaFase'],'Quase! Vamos olhar a figura juntas.');ajuda();digitado='';$('resp').textContent=''}}
 function seguir(){i++;if(i<fila.length){mostrar();return}
  if(repetir.length&&!fila.revisao){fila.revisao=true;repetir.forEach(q=>{const c={...q,missao:false};fila.push(c)});repetir=[];mostrar();reagir('feliz',['avaFase'],'Revisão rapidinha: as que deram trabalho voltaram. Agora você já sabe o truque!');return}
  terminar()}
 $('bSeguir').onclick=seguir;
-function terminar(){const est=acertos>=8?3:acertos>=7?2:acertos>=6?1:0,ant=estado.fases[F.id]?.estrelas||0;let premios=[];
+function terminar(){if(F.srs)return terminarTreino();const est=acertos>=8?3:acertos>=7?2:acertos>=6?1:0,ant=estado.fases[F.id]?.estrelas||0;let premios=[];
  if(est){const ganho=Math.max(0,est-ant)*10+5;estado.cristais+=ganho;premios.push(`💎 +${ganho}`);estado.fases[F.id]={estrelas:Math.max(est,ant),vezes:(estado.fases[F.id]?.vezes||0)+1};
   if(F.chefe&&!estado.medalhas.includes(F.id)){estado.medalhas.push(F.id);premios.push('🏅 Medalha: '+F.n);estado.cristais+=30;premios.push('💎 +30 do chefão')}}
  const nAntes=nivelDe(estado.xp);salvar();const nDepois=nivelDe(estado.xp);
@@ -528,7 +640,7 @@ function terminar(){const est=acertos>=8?3:acertos>=7?2:acertos>=6?1:0,ant=estad
  $('fimEstrelas').textContent='★'.repeat(est)+'☆'.repeat(3-est);$('fimPremios').innerHTML=premios.map(p=>`<span class="chip">${p}</span>`).join('')+(nDepois>nAntes?`<span class="chip">🛡️ Subiu para o nível ${nDepois}!</span>`:'');
  $('fimTexto').textContent=est?`${acertos} de 8 de primeira${ajudas?` e ${ajudas} com ajuda`:''}. ${est<3?'Jogue de novo para conquistar as 3 estrelas!':'Perfeito!'}`:`${acertos} de 8 de primeira. Para abrir a próxima fase, são 6. Que tal mais uma rodada? Você já está mais perto.`;
  $('mFim').classList.add('on');if(est){som('fim');confete()}}
-$('bRepetir').onclick=()=>{$('mFim').classList.remove('on');comecar(F)};$('bMapa').onclick=()=>{$('mFim').classList.remove('on');ir('mapa')};$('bSairFase').onclick=()=>ir('mapa');
+$('bRepetir').onclick=()=>{$('mFim').classList.remove('on');if(F.srs){ir('treino');return}comecar(F)};$('bMapa').onclick=()=>{$('mFim').classList.remove('on');ir('mapa')};$('bSairFase').onclick=()=>ir('mapa');
 const TECLAS=['7','8','9','4','5','6','1','2','3','⌫','0','OK'];
 $('teclado').innerHTML=TECLAS.map(t=>`<button class="${t==='OK'?'ok':''}" data-t="${t}" aria-label="${t==='⌫'?'apagar':t==='OK'?'conferir':t}">${t}</button>`).join('');
 function tecla(t){if(!$('bSeguir').hidden)return;if(t==='OK')return conferir();if(t==='⌫')digitado=digitado.slice(0,-1);else if(digitado.length<4)digitado+=t;$('resp').textContent=digitado}
@@ -542,14 +654,14 @@ $('loja').addEventListener('click',e=>{const c=e.target.closest('[data-comprar]'
  if(c){const it=ITENS.find(x=>x.id===c.dataset.comprar);if(estado.cristais>=it.preco){estado.cristais-=it.preco;estado.itens.push(it.id);estado.equipado.push(it.id);salvar();som('fim');loja()}}
  if(q){const id=q.dataset.eq;estado.equipado=estado.equipado.includes(id)?estado.equipado.filter(x=>x!==id):[...estado.equipado,id];salvar();loja()}});
 function pais(){const feitas=TODAS.filter(f=>estado.fases[f.id]?.estrelas).length,dif=Object.entries(estado.fatos).filter(([k,f])=>f.erro>0&&f.seq<2).sort((a,b)=>b[1].erro-a[1].erro).slice(0,8);
- $('resumoPais').innerHTML=`<p><b>Fases concluídas:</b> ${feitas} de ${TODAS.length} · <b>Nível:</b> ${nivelDe(estado.xp)} · <b>Medalhas:</b> ${estado.medalhas.length} de ${MUNDOS.length}</p>
+ $('resumoPais').innerHTML=`<p><b>Fases concluídas:</b> ${feitas} de ${TODAS.length} · <b>Nível:</b> ${nivelDe(estado.xp)} · <b>Medalhas:</b> ${estado.medalhas.length} · <b>Treino:</b> ${Object.keys(estado.srs).length} de 55 contas vistas, ${Object.values(estado.srs).filter(v=>v.caixa>=5).length} bem guardadas, 🔥 ${sequencia()} dia(s) seguidos</p>
  <p><b>Contas da tabuada que mais deram trabalho</b> (para treinar com objetos): ${dif.length?dif.map(([k,f])=>k.replace('x',' × ')+` (${f.erro} erro${f.erro>1?'s':''})`).join(' · '):'nenhuma ainda.'}</p>`}
 $('bLiberar').onclick=()=>{if(confirm('Liberar todas as fases? (Útil para os pais conhecerem o jogo. A Ester continua ganhando estrelas normalmente.)')){estado.liberar=true;salvar();ir('mapa')}};
 $('bZerar').onclick=()=>{if(confirm('Apagar TODO o progresso da Ester neste navegador (XP, cristais, estrelas e itens)?')){localStorage.removeItem(CHAVE);location.reload()}};
 
 window.__arm={armarSoma,armarSub,armarMult,armarDiv,iniciarArmada,responderArmada,resultadoArmada,contaDoTruque,atual:()=>AR}; // para o teste
 window.__v=vEstrutura; // para o teste conferir que a figura não revela a resposta
-window.jornadaAPI={MUNDOS,TODAS,estrMult,estado:()=>estado,atual:()=>fila[i],comecar:id=>comecar(TODAS.find(f=>f.id===id)),ir};
+window.jornadaAPI={MUNDOS,TODAS,estrMult,estado:()=>estado,atual:()=>fila[i],comecar:id=>comecar(TODAS.find(f=>f.id===id)),ir,comecarTreino,planoDoDia,ORDEM_FATOS,fila:()=>fila,sequencia};
 hud();mapa();
 })();
 </script>
