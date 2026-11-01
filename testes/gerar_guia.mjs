@@ -23,6 +23,6 @@ const pdf = await cdp('Page.printToPDF', { printBackground: true, preferCSSPageS
   footerTemplate: '<div style="width:100%;font:8px Arial;color:#6b6380;padding:0 15mm;display:flex;justify-content:space-between"><span>Matemática visual da Ester · Guia para os pais</span><span><span class="pageNumber"></span> / <span class="totalPages"></span></span></div>' });
 const buf = Buffer.from(pdf.result.data, 'base64'); writeFileSync(SAIDA, buf);
 const paginas = (buf.toString('latin1').match(/\/Type\s*\/Page[^s]/g) || []).length;
-const ok = secoes === 11 && bolinhas === 100 && paginas >= 5 && erros.length === 0;
-console.log(`${ok ? 'OK' : 'FALHA'} · ${SAIDA} · ${buf.length} bytes · ${paginas} páginas · ${secoes} seções (9 + 2 folhas) · grade com ${bolinhas} bolinhas · erros JS: ${erros.length}`);
+const ok = secoes === 12 && bolinhas === 100 && paginas >= 5 && erros.length === 0;
+console.log(`${ok ? 'OK' : 'FALHA'} · ${SAIDA} · ${buf.length} bytes · ${paginas} páginas · ${secoes} seções (10 + 2 folhas) · grade com ${bolinhas} bolinhas · erros JS: ${erros.length}`);
 ws.close(); chrome.kill(); process.exit(ok ? 0 : 1);
