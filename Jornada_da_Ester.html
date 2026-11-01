@@ -87,6 +87,15 @@ main{max-width:1180px;margin:0 auto;padding:18px 16px 60px}
 .b.p2{background:radial-gradient(circle at 35% 30%,#ffd1ea,var(--rosa) 45%,#a8256a);box-shadow:0 0 8px rgba(255,79,163,.6)}
 .b.f{background:transparent;border:2px dashed rgba(159,177,217,.55);box-shadow:none}
 .b.g5{margin-left:12px}
+.estr{display:flex;flex-direction:column;gap:6px;align-items:center}
+.bloco{display:flex;align-items:center;justify-content:center;border-radius:12px;font-weight:900;font-size:20px;color:#06102a;text-align:center;padding:4px 10px;min-height:34px}
+.bloco.k{background:linear-gradient(135deg,var(--ciano),#7fd9ff);box-shadow:0 0 14px rgba(56,225,255,.45)}
+.bloco.n{background:linear-gradient(135deg,var(--rosa),#ff9ccc);box-shadow:0 0 14px rgba(255,79,163,.45)}
+.bloco.menos{background:transparent;border:3px dashed var(--vermelho);color:var(--vermelho)}
+.bloco.meio{background:linear-gradient(90deg,var(--ciano) 0 50%,rgba(56,225,255,.15) 50% 100%);position:relative;margin-top:26px;color:#fff;text-shadow:0 1px 3px #000,0 0 8px #000}
+.bloco.meio::after{content:"✂ metade";position:absolute;left:50%;top:-22px;transform:translateX(-50%);color:var(--amarelo);font-size:14px}
+#titulaRev[hidden]{display:none} /* .chip usa display:flex, que anularia o [hidden] */
+.cabeca{color:var(--suave);font-weight:800;padding:26px 10px;text-align:center;font-size:20px}
 .rot{min-width:90px;margin-left:10px;font-weight:900;color:var(--suave)}.rot.p2{color:var(--rosa)}
 .q10s{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
 .q10{display:grid;grid-template-columns:repeat(5,38px);gap:5px;padding:8px;border:2px solid var(--ciano);border-radius:12px;box-shadow:0 0 14px rgba(56,225,255,.3)}
@@ -143,7 +152,7 @@ canvas#confete{position:fixed;inset:0;pointer-events:none;z-index:60}
   <div class="fase">
    <div class="vidro lado"><div class="fala" id="falaFase"></div><svg class="ava" id="avaFase" viewBox="0 0 200 226" aria-label="Ester"></svg><div class="pontos" id="pontos"></div><button class="btn" id="bSairFase">← Voltar ao mapa</button></div>
    <div class="vidro palco">
-    <div class="titulo-fase" id="tituloFase"></div>
+    <div class="titulo-fase" id="tituloFase"></div><div class="chip" id="titulaRev" hidden style="margin-top:6px">🔁 Revisão</div>
     <div class="missao" id="missao" hidden></div>
     <div class="pergunta" id="pergunta"></div>
     <div class="visual" id="visual"></div>
@@ -245,6 +254,19 @@ function plano(a){if(a>=6&&a<=8)return{partir:5,fant:0};if(a===4||a===3)return{p
 function vGrade(el,a,b,ajuda){if(ajuda){const e=estrMult(a,b);a=e.a;b=e.b}const pl=ajuda?plano(a):{partir:0,fant:0};let h='<div class="grade">';
  for(let r=0;r<a+pl.fant;r++){const f=r>=a,p2=!f&&pl.partir&&r>=pl.partir;h+=`<div class="lin${r===5?' s5':''}">`;for(let c=0;c<b;c++)h+=`<i class="b${f?' f':p2?' p2':''}${c===5?' g5':''}"></i>`;
   h+=`<span class="rot${p2?' p2':''}">${f?(a===9?'10º grupo: tira':'até 10 grupos'):ajuda?(r+1)*b:''}</span></div>`}el.innerHTML=h+'</div>'}
+/* Estrutura da multiplicação: blocos fechados com o fato-âncora que ela já sabe (5 × 7 = 35) e faixas
+   do que falta (7). A altura mostra quantos grupos; o RESULTADO nunca aparece: ela junta as partes. */
+function vEstrutura(el,a,b){const e=estrMult(a,b);a=e.a;b=e.b;const L=Math.max(90,b*26),h=g=>Math.max(34,g*15);
+ const bl=(cls,g,txt)=>`<div class="bloco ${cls}" style="width:${L}px;height:${h(g)}px">${txt}</div>`;let partes=[];
+ if(a===1)partes=[bl('n',1,`${b}`)];
+ else if(a===10)partes=[`<div style="display:flex;gap:6px">${Array.from({length:b},()=>'<div class="bloco k" style="width:30px;height:120px;padding:0;font-size:14px">10</div>').join('')}</div>`];
+ else if(a===2)partes=[bl('n',1,`${b}`),bl('n',1,`${b}`)];
+ else if(a===5)partes=[bl('meio',10,`10 × ${b} = ${10*b}`)];
+ else if(a===4)partes=[bl('k',2,`2 × ${b} = ${2*b}`),bl('k',2,`2 × ${b} = ${2*b}`)];
+ else if(a===3)partes=[bl('k',2,`2 × ${b} = ${2*b}`),bl('n',1,`${b}`)];
+ else if(a===9)partes=[bl('k',9,`10 × ${b} = ${10*b}`),bl('menos',1,`− ${b}`)];
+ else partes=[bl('k',5,`5 × ${b} = ${5*b}`),...Array.from({length:a-5},()=>bl('n',1,`${b}`))];
+ el.innerHTML=`<div class="estr">${partes.join('')}</div>`}
 function vQ10(el,x,y,ajuda){const s=x+y,n=Math.max(2,Math.ceil(s/10));let h='<div class="q10s">';for(let k=0;k<n;k++){h+='<div class="q10">';for(let i=0;i<10;i++){const p=k*10+i;h+=`<i class="${p<x?'a':p<s?'c':''}"></i>`}h+='</div>'}el.innerHTML=h+'</div>'}
 function vTirar(el,x,y){const n=Math.max(1,Math.ceil(x/10));let h='<div class="q10s">';for(let k=0;k<n;k++){h+='<div class="q10">';for(let i=0;i<10;i++){const p=k*10+i;h+=`<i class="${p<x-y?'a':p<x?'x':''}"></i>`}h+='</div>'}el.innerHTML=h+'</div>'}
 function blocosHTML(n,rot){const d=Math.floor(n/10),u=n%10;let h=`<div class="grupoBlocos"><div><div style="display:flex;gap:4px;align-items:flex-end">`;for(let i=0;i<d;i++)h+='<div class="dez">'+'<i></i>'.repeat(10)+'</div>';
@@ -266,7 +288,7 @@ function vCestas(el,total,g,ajuda){const cada=total/g;let h='<div class="cestas"
 /* =================== GERADORES DE PERGUNTA =================== */
 const NOMES=['Ester','a robô Lumi','o dragão Pixel','a fada Nina'];
 function qMult(tabs,{rev=[]}={}){const t=Math.random()<.3&&rev.length?pick(rev):pick(tabs),n=rnd(1,10),[a,b]=Math.random()<.5?[t,n]:[n,t];
- return{p:`${a} × ${b}`,r:a*b,ver:(el,aj)=>vGrade(el,a,b,aj),dica:()=>estrMult(a,b).texto,fato:Math.min(a,b)+'x'+Math.max(a,b),
+ return{p:`${a} × ${b}`,r:a*b,ver:(el)=>vEstrutura(el,a,b),dica:()=>estrMult(a,b).texto,fato:Math.min(a,b)+'x'+Math.max(a,b),
   hist:()=>`${pick(NOMES)} encontrou ${a} baús com ${b} cristais em cada um. Quantos cristais ao todo?`}}
 function qAmigos10(){const a=rnd(1,9);return{p:`${a} + ? = 10`,r:10-a,ver:(el)=>vQ10(el,a,0),dica:()=>`Amigos do 10: ${a} + ${10-a} = 10. Conte os lugares vazios do quadro.`,hist:()=>`A nave precisa de 10 baterias. Já tem ${a}. Quantas faltam?`}}
 function qCompletar10(){let a,b;do{a=rnd(5,9);b=rnd(3,9)}while(a+b<=10);const f=10-a;return{p:`${a} + ${b}`,r:a+b,ver:(el)=>vQ10(el,a,b),dica:()=>`Complete o 10: ${a} + ${f} = 10. Sobram ${b-f}. 10 + ${b-f} = ${a+b}.`,hist:()=>`${pick(NOMES)} tinha ${a} moedas de energia e ganhou ${b}. Com quantas ficou?`}}
@@ -287,7 +309,7 @@ function qVezes10(){const a=rnd(2,9),b=10;return{p:`${a} × ${b}`,r:a*b,ver:(el)
 function qDezenaVez(){const d=rnd(2,9)*10,b=rnd(2,5);return{p:`${d} × ${b}`,r:d*b,ver:(el)=>vArea(el,d,b),dica:()=>`${d} é ${d/10} dezenas. ${d/10} × ${b} = ${d/10*b} dezenas = ${d*b}.`,hist:()=>`Uma fileira tem ${d} cadeiras. Quantas cadeiras há em ${b} fileiras?`}}
 function qArea(){const a=rnd(12,39),b=rnd(2,5),d=Math.floor(a/10)*10,u=a%10;return{p:`${a} × ${b}`,r:a*b,ver:(el)=>vArea(el,a,b),dica:()=>`Parta o ${a} em ${d} e ${u}: ${d} × ${b} = ${d*b}; ${u} × ${b} = ${u*b}; ${d*b} + ${u*b} = ${a*b}.`,hist:()=>`Cada caixa tem ${a} lápis de cor. Quantos lápis há em ${b} caixas?`}}
 function qRepartir(){const g=rnd(2,5),c=rnd(2,5),t=g*c;return{p:`${t} ÷ ${g}`,r:c,ver:(el,aj)=>vCestas(el,t,g,aj),dica:()=>`Reparta ${t} em ${g} cestas, uma de cada vez em cada cesta: cada uma fica com ${c}.`,hist:()=>`${t} estrelas foram divididas igualmente entre ${g} amigos. Quantas cada um ganha?`}}
-function qDiv(tabs){const g=pick(tabs),c=rnd(1,10),t=g*c;return{p:`${t} ÷ ${g}`,r:c,ver:(el,aj)=>aj?vGrade(el,c,g,false):vGrade(el,0,0),dica:()=>`Divisão é a tabuada ao contrário: ${g} × ? = ${t}. Como ${g} × ${c} = ${t}, então ${t} ÷ ${g} = ${c}.`,fato:Math.min(g,c)+'x'+Math.max(g,c),hist:()=>`${pick(NOMES)} guardou ${t} cristais em sacos com ${g} em cada. Quantos sacos usou?`}}
+function qDiv(tabs){const g=pick(tabs),c=rnd(1,10),t=g*c;return{p:`${t} ÷ ${g}`,r:c,ver:(el,aj)=>aj?vEstrutura(el,g,c):(el.innerHTML=`<div class="cabeca">🔎 Pense na tabuada: <b>${g} × ? = ${t}</b></div>`),dica:()=>`Divisão é a tabuada ao contrário: ${g} × ? = ${t}. Como ${g} × ${c} = ${t}, então ${t} ÷ ${g} = ${c}.`,fato:Math.min(g,c)+'x'+Math.max(g,c),hist:()=>`${pick(NOMES)} guardou ${t} cristais em sacos com ${g} em cada. Quantos sacos usou?`}}
 
 /* =================== MUNDOS E FASES =================== */
 const M=(n,ic,cor,fases)=>({n,ic,cor,fases});
@@ -363,15 +385,24 @@ function mapa(){avatar($('avaMapa'),'feliz');$('falaMapa').textContent=pick(FALA
    b.innerHTML=`<span class="ic">${ok?f.ic:'🔒'}</span>${f.n}<span class="est">${'★'.repeat(est)}${'☆'.repeat(3-est)}</span>`;b.onclick=()=>comecar(F);tr.appendChild(b)});box.appendChild(d)})}
 
 /* =================== JOGAR UMA FASE =================== */
-const N=8;let F=null,fila=[],i=0,acertos=0,ajudas=0,digitado='',errouAtual=false,usouAjuda=false,repetir=[],resultados=[];
-function comecar(f){F=f;fila=[];for(let k=0;k<N-1;k++)fila.push(f.g());const ult=f.g();ult.missao=true;fila.push(ult);
+const N=8;let apaga=0,F=null,fila=[],i=0,acertos=0,ajudas=0,digitado='',errouAtual=false,usouAjuda=false,repetir=[],resultados=[];
+function revisao(f){ // fases já vencidas (de qualquer mundo), menos a atual; a conta volta sem figura
+ const feitas=TODAS.filter(x=>x.id!==f.id&&!x.chefe&&estado.fases[x.id]?.estrelas);if(!feitas.length)return null;const q=pick(feitas).g();q.revisao=true;return q}
+function comecar(f){F=f;fila=[];for(let k=0;k<N-1;k++)fila.push(f.g());
+ if(!f.chefe)[5,6].forEach(k=>{const r=revisao(f);if(r)fila[k]=r});
+ const ult=f.g();ult.missao=true;fila.push(ult);
  i=0;acertos=0;ajudas=0;repetir=[];resultados=[];ir('fase');document.querySelectorAll('.hud nav [data-ir]').forEach(b=>b.classList.remove('on'));
- $('tituloFase').textContent=`Mundo ${f.mi+1} · ${f.n}`;reagir('feliz',['avaFase'],'💡 '+f.ensina+' Vamos lá!');mostrar()}
+ $('tituloFase').textContent=`Mundo ${f.mi+1} · ${f.n}`;reagir('feliz',['avaFase'],'💡 '+f.ensina+(f.chefe?'':' Primeiro com figura, depois ela some: você vai fazer de cabeça!'));mostrar()}
 function pontos(){$('pontos').innerHTML=fila.map((q,k)=>`<i class="${k<resultados.length?(resultados[k]==='ok'?'ok':'aj'):k===i?'at':''}"></i>`).join('')}
 function mostrar(){const q=fila[i];digitado='';errouAtual=false;usouAjuda=false;$('resp').textContent='';$('dica').hidden=true;$('bSeguir').hidden=true;$('bAjuda').hidden=false;
  if(q.missao){$('missao').hidden=false;$('missao').textContent='📜 Missão: '+q.hist();$('pergunta').textContent='= ?'}else{$('missao').hidden=true;$('pergunta').textContent=q.p+' = ?'}
- if(F.chefe&&!q.missao)$('visual').innerHTML='<div style="color:var(--suave);font-weight:800;padding:20px">🐉 Chefão: só números! A figura aparece na 💡 Ajuda.</div>';else q.ver($('visual'),false);pontos()}
-function ajuda(){const q=fila[i];usouAjuda=true;q.ver($('visual'),true);$('dica').hidden=false;$('dica').textContent='💡 '+q.dica()+(q.missao?` (A conta da missão é ${q.p}.)`:'');reagir('pensando',['avaFase'],'Olha a figura comigo… dá para ver a conta!')}
+ clearTimeout(apaga);const cab=t=>{$('visual').innerHTML=`<div class="cabeca">${t}</div>`};
+ if(F.chefe)cab('🐉 Chefão: só números! A figura aparece na 💡 Ajuda.');
+ else if(q.revisao)cab('🔁 Revisão de uma fase que você já venceu: só com a cabeça!');
+ else if(i>=5||q.missao)cab('🧠 Agora só com a cabeça! Se precisar, use a 💡 Ajuda.');
+ else{q.ver($('visual'),false);if(i>=2)apaga=setTimeout(()=>{if(!usouAjuda&&$('bSeguir').hidden)cab('👀 Viu a forma? Agora pense na conta!')},2000)}
+ $('titulaRev').hidden=!q.revisao;pontos()}
+function ajuda(){const q=fila[i];usouAjuda=true;clearTimeout(apaga);q.ver($('visual'),true);$('dica').hidden=false;$('dica').textContent='💡 '+q.dica()+(q.missao?` (A conta da missão é ${q.p}.)`:'');reagir('pensando',['avaFase'],'Olha a figura comigo… dá para ver a conta!')}
 $('bAjuda').onclick=ajuda;
 function registrarFato(q,ok){if(!q.fato)return;const f=estado.fatos[q.fato]||(estado.fatos[q.fato]={ok:0,erro:0,seq:0});if(ok){f.ok++;f.seq++}else{f.erro++;f.seq=0}}
 const VIVA=['Isso! 🎉','Mandou bem!','Você viu a conta!','Uau, que estratégia!','Acertou!','Arrasou! 💎'];
@@ -411,6 +442,7 @@ function pais(){const feitas=TODAS.filter(f=>estado.fases[f.id]?.estrelas).lengt
 $('bLiberar').onclick=()=>{if(confirm('Liberar todas as fases? (Útil para os pais conhecerem o jogo. A Ester continua ganhando estrelas normalmente.)')){estado.liberar=true;salvar();ir('mapa')}};
 $('bZerar').onclick=()=>{if(confirm('Apagar TODO o progresso da Ester neste navegador (XP, cristais, estrelas e itens)?')){localStorage.removeItem(CHAVE);location.reload()}};
 
+window.__v=vEstrutura; // para o teste conferir que a figura não revela a resposta
 window.jornadaAPI={MUNDOS,TODAS,estrMult,estado:()=>estado,atual:()=>fila[i],comecar:id=>comecar(TODAS.find(f=>f.id===id)),ir};
 hud();mapa();
 })();

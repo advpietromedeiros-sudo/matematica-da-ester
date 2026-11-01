@@ -54,7 +54,7 @@ confere('J3 · 8 de 8: 3 estrelas, 80 XP, 35 cristais e a Torre do 10 abre', j3.
 // J4 · erro: personagem "ops", figura e dica; a pergunta volta na revisão
 await avalia("document.querySelector('[data-fase=\"t10\"]').click()"); await espera(300);
 let q = await avalia('jornadaAPI.atual()'); await responder(q.r + 1);
-const j4 = await avalia("({dica:!document.getElementById('dica').hidden,fig:document.querySelectorAll('#visual .b').length,fala:document.getElementById('falaFase').textContent})");
+const j4 = await avalia("({dica:!document.getElementById('dica').hidden,fig:document.querySelectorAll('#visual .bloco,#visual .b').length,fala:document.getElementById('falaFase').textContent})");
 await print('J-5-erro-com-ajuda.png');
 await responder(q.r); await avalia("document.getElementById('bSeguir').click()");
 for (let k = 1; k < 8; k++) { q = await avalia('jornadaAPI.atual()'); await responder(q.r); await avalia("document.getElementById('bSeguir').click()"); }
@@ -83,6 +83,28 @@ confere('J8 · progresso, estrelas e itens continuam depois de reabrir', j8.xp >
 await avalia("jornadaAPI.estado().liberar=true;jornadaAPI.ir('mapa')");
 const vis = {}; for (const f of ['a2', 's2', 's5', 'm3', 'd1']) { await avalia(`jornadaAPI.comecar('${f}')`); await espera(150); await avalia("document.getElementById('bAjuda').click()"); await espera(150); vis[f] = await avalia("document.getElementById('visual').innerHTML.length"); await print(`J-8-visual-${f}.png`); await avalia("jornadaAPI.ir('mapa')"); }
 confere('J9 · figuras de adição, subtração, multiplicação e divisão aparecem', Object.values(vis).every(v => v > 200), JSON.stringify(vis));
+// J11 · a figura da multiplicação nunca mostra a resposta (81 contas de 2 a 10)
+// controle (REGRA CINCO): a mesma régua, contra uma figura falsa que mostra a resposta, TEM de acusar
+const ctrl = await avalia(`(function(){const d=document.createElement('div');let acusou=0;for(let a=2;a<=10;a++)for(let b=2;b<=10;b++){d.textContent=String(a*b);const nums=(d.textContent.match(/\\d+/g)||[]).map(Number);if(nums.includes(a*b))acusou++}return acusou})()`);
+confere('J11a · controle: a régua acusa uma figura que revela a resposta', ctrl === 81, `${ctrl} de 81 acusadas`);
+const j11 = await avalia(`(function(){const d=document.createElement('div'),ruins=[];for(let a=2;a<=10;a++)for(let b=2;b<=10;b++){
+  const q={...jornadaAPI.TODAS.find(f=>f.id==='t2')};const div=d;const fake=jornadaAPI.TODAS[0].g;
+  window.__v(div,a,b);const nums=(div.textContent.match(/\\d+/g)||[]).map(Number);if(nums.includes(a*b))ruins.push(a+'×'+b);if(div.querySelectorAll('.b').length)ruins.push(a+'×'+b+' com bolinhas')}return ruins})()`);
+confere('J11 · bloco fechado: nenhuma figura de multiplicação mostra a resposta nem tem bolinhas', Array.isArray(j11) && j11.length === 0, Array.isArray(j11) ? (j11.join(', ') || '81 de 81') : JSON.stringify(j11));
+// J12–J14 · a figura vai sumindo e a revisão traz fases já vencidas
+await avalia("jornadaAPI.comecar('t5')"); await espera(300);
+const p1 = await avalia("({blocos:document.querySelectorAll('#visual .bloco').length,bol:document.querySelectorAll('#visual .b').length})");
+confere('J12 · 1ª pergunta: figura de blocos, sem bolinhas para contar', p1.blocos > 0 && p1.bol === 0, JSON.stringify(p1));
+await print('J-9-bloco-fechado.png');
+for (let k = 0; k < 2; k++) { const q = await avalia('jornadaAPI.atual()'); await responder(q.r); await avalia("document.getElementById('bSeguir').click()"); }
+const p3a = await avalia("document.querySelectorAll('#visual .bloco').length"); await espera(2300);
+const p3b = await avalia("document.getElementById('visual').textContent");
+await print('J-10-figura-sumiu.png');
+for (let k = 2; k < 5; k++) { const q = await avalia('jornadaAPI.atual()'); await responder(q.r); await avalia("document.getElementById('bSeguir').click()"); }
+const p6 = await avalia("({txt:document.getElementById('visual').textContent,rev:jornadaAPI.atual().revisao===true})");
+confere('J13 · 3ª pergunta: a figura aparece e some em 2 s; 6ª: só números', p3a > 0 && /Viu a forma/.test(p3b) && /cabeça/.test(p6.txt), JSON.stringify({ p3a, p3b, p6 }));
+confere('J14 · revisão espaçada: a 6ª pergunta vem de uma fase já vencida', p6.rev, JSON.stringify(p6));
+await avalia("jornadaAPI.ir('mapa')");
 confere('J10 · zero erro de JavaScript', erros.length === 0, erros.join(' | '));
 ws.close(); chrome.kill();
 const f = res.filter(x => !x).length; console.log(`\n${res.length - f} de ${res.length} conferências OK`); process.exit(f ? 1 : 0);
