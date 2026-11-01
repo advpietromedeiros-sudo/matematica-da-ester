@@ -96,6 +96,25 @@ main{max-width:1180px;margin:0 auto;padding:18px 16px 60px}
 .bloco.meio::after{content:"✂ metade";position:absolute;left:50%;top:-22px;transform:translateX(-50%);color:var(--amarelo);font-size:14px}
 #titulaRev[hidden]{display:none} /* .chip usa display:flex, que anularia o [hidden] */
 .cabeca{color:var(--suave);font-weight:800;padding:26px 10px;text-align:center;font-size:20px}
+/* conta armada (método tradicional): letra grande, uma coluna/passo em foco por vez */
+.armWrap{display:flex;flex-direction:column;align-items:center;gap:8px;width:100%}
+.arm{display:inline-grid;gap:2px 4px;font:900 58px/1 "Consolas","Courier New",monospace;justify-content:center}
+.arm>div{width:50px;height:66px;display:grid;place-items:center;border-radius:8px;position:relative}
+.arm>div.peq{font-size:24px;height:30px;color:var(--amarelo)}
+.arm>div.tr{border-top:5px solid var(--tinta);border-radius:0}
+.arm>div.sb{border-bottom:5px solid var(--tinta);border-radius:0}
+.arm>div.foco{background:rgba(56,225,255,.16);box-shadow:inset 0 0 0 2px rgba(56,225,255,.65)}
+.arm>div.novo{color:var(--verde);animation:surge .45s ease}
+.arm>div.risca{text-decoration:line-through;text-decoration-color:var(--vermelho);text-decoration-thickness:5px;opacity:.55}
+.arm>div.desce{color:var(--rosa)}
+.arm>div.op{color:var(--rosa)}
+.chave{display:flex;align-items:flex-start;justify-content:center;gap:0}
+.chave .dv{font:900 58px/66px "Consolas","Courier New",monospace;border-left:5px solid var(--tinta);border-bottom:5px solid var(--tinta);padding:0 16px;min-width:90px;text-align:left}
+.chave .quo{font:900 58px/66px "Consolas","Courier New",monospace;color:var(--verde);padding:0 16px;min-height:66px;letter-spacing:4px}
+.chave .quo.foco{background:rgba(56,225,255,.16);border-radius:8px}
+.passo{font-size:24px;font-weight:800;text-align:center;max-width:780px;margin:4px 0;padding:10px 16px;border-radius:14px;background:rgba(56,225,255,.08);border:1px solid var(--borda)}
+.passo small{display:block;color:var(--verde);font-size:18px;margin-bottom:4px}
+@keyframes surge{from{transform:scale(1.7);opacity:0}to{transform:none;opacity:1}}
 .rot{min-width:90px;margin-left:10px;font-weight:900;color:var(--suave)}.rot.p2{color:var(--rosa)}
 .q10s{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
 .q10{display:grid;grid-template-columns:repeat(5,38px);gap:5px;padding:8px;border:2px solid var(--ciano);border-radius:12px;box-shadow:0 0 14px rgba(56,225,255,.3)}
@@ -285,30 +304,101 @@ function vArea(el,a,b){const d=Math.floor(a/10)*10,u=a%10;el.innerHTML=`<div cla
 function vCestas(el,total,g,ajuda){const cada=total/g;let h='<div class="cestas">';for(let i=0;i<g;i++){h+='<div class="cesta">';for(let j=0;j<(ajuda?cada:0);j++)h+='<i class="b" style="width:18px;height:18px"></i>';h+='</div>'}
  h+='</div>';if(!ajuda)h=`<div style="text-align:center"><div class="grade" style="margin-bottom:10px"><div class="lin">${'<i class="b" style="width:18px;height:18px"></i>'.repeat(Math.min(total,40))}</div></div>${h}</div>`;el.innerHTML=h}
 
+/* =================== CONTA ARMADA (método tradicional, passo a passo) ===================
+   Cada conta vira uma lista de passos: {txt (a pergunta do passo), resp (o número que ela digita),
+   pre/pos (o que se escreve na conta antes/depois), col ou foco (onde brilha), erro (a dica)}.
+   Colunas contam da direita: 0 = unidades. Na chave, as colunas contam da esquerda. */
+const dig=n=>String(n).split('').map(Number);
+const COL=['unidades','dezenas','centenas','milhares'];
+function armarSoma(a,b){const A=dig(a).reverse(),B=dig(b).reverse(),n=Math.max(A.length,B.length),passos=[];let vai=0;
+ for(let c=0;c<n;c++){const x=A[c]||0,y=B[c]||0,s=x+y+vai,ult=c===n-1;
+  const pos=s>=10?(ult?[{k:'res:'+c,v:s%10},{k:'res:'+(c+1),v:1}]:[{k:'res:'+c,v:s%10},{k:'vai:'+(c+1),v:1}]):[{k:'res:'+c,v:s}];
+  passos.push({col:c,txt:`Coluna das ${COL[c]}: ${x} + ${y}${vai?' + 1 (que veio)':''} = ?`,resp:s,pos,
+   depois:s>=10&&!ult?`${s}: escreve o ${s%10} e VAI 1 para as ${COL[c+1]}!`:'',erro:`Junte: ${x} + ${y}${vai?' + 1':''} = ${s}.${s>=10&&!ult?` Escreva só o ${s%10} e o 1 sobe para a coluna das ${COL[c+1]}.`:''}`});vai=s>=10?1:0}
+ return{tipo:'+',a,b,r:a+b,cols:Math.max(n,String(a+b).length),passos}}
+function armarSub(a,b){const A=dig(a).reverse(),B=dig(b).reverse(),n=A.length,top=A.slice(),passos=[];
+ for(let c=0;c<n;c++){const y=B[c]||0;let pre=[],txt;
+  if(top[c]<y){const antes=top[c];top[c+1]-=1;top[c]+=10;pre=[{k:'a:'+(c+1),cls:'risca'},{k:'emp:'+(c+1),v:top[c+1]},{k:'emp:'+c,v:top[c]}];
+   txt=`O ${antes} é menor que o ${y}: ele pede 1 emprestado à vizinha (que vira ${top[c+1]}) e vira ${top[c]}. Quanto é ${top[c]} − ${y}?`}
+  else txt=`Coluna das ${COL[c]}: ${top[c]} − ${y} = ?`;
+  const d=top[c]-y,zeroEsq=c===n-1&&d===0&&n>1;
+  passos.push({col:c,txt,resp:d,pre,pos:zeroEsq?[]:[{k:'res:'+c,v:d}],erro:`Tire: ${top[c]} − ${y} = ${d}.`})}
+ return{tipo:'−',a,b,r:a-b,cols:n,passos}}
+function armarMult(a,m){const A=dig(a).reverse(),passos=[];let vai=0;
+ for(let c=0;c<A.length;c++){const x=A[c],p=x*m,ult=c===A.length-1;
+  passos.push({col:c,txt:`Coluna das ${COL[c]}: ${x} × ${m} = ? (tabuada!)`,resp:p,pos:[],erro:`Tabuada: ${x} × ${m} = ${p}.`});
+  let s=p;if(vai){s=p+vai;passos.push({col:c,txt:`${p} + ${vai} que veio = ?`,resp:s,pos:[],erro:`${p} + ${vai} = ${s}.`})}
+  const ul=passos[passos.length-1];
+  if(ult)ul.pos=dig(s).reverse().map((d,j)=>({k:'res:'+(c+j),v:d}));
+  else{ul.pos=[{k:'res:'+c,v:s%10}];if(s>=10){ul.pos.push({k:'vai:'+(c+1),v:Math.floor(s/10)});ul.depois=`${s}: escreve o ${s%10} e VAI ${Math.floor(s/10)}!`}}
+  vai=ult?0:Math.floor(s/10)}
+ return{tipo:'×',a,b:m,r:a*m,cols:Math.max(String(a*m).length,A.length,2),passos}}
+function numEm(n,row,fim,sinal){const ds=dig(n),out=ds.map((d,j)=>({k:row+':'+(fim-ds.length+1+j),v:d}));if(sinal)out.unshift({k:row+':'+(fim-ds.length),v:sinal,cls:'op'});return out}
+function armarDiv(D,d){const DS=dig(D),L=DS.length,passos=[];let idx=0,P=DS[0],linha=0,ciclo=0;
+ if(P<d&&L>1){idx=1;P=P*10+DS[1]}
+ for(;;){const qq=Math.floor(P/d),prod=qq*d,rem=P-prod,lp=String(P).length,c0=idx-lp+1;
+  const pega=ciclo===0&&idx===1&&DS[0]<d?`O ${DS[0]} é menor que o ${d}: não dá. Pegamos o ${P}. `:'';
+  passos.push({foco:{r:linha,c0,c1:idx,quo:true},txt:`${pega}Quantas vezes o ${d} cabe no ${P}?`,resp:qq,pos:[{q:qq}],
+   erro:`Procure na tabuada do ${d}: ${d} × ${qq} = ${prod}${qq<9?`, e ${d} × ${qq+1} = ${d*(qq+1)} já passa do ${P}`:''}. Cabe ${qq} vez${qq===1?'':'es'}.`});
+  passos.push({foco:{r:linha+1,c0,c1:idx},txt:`Multiplique: ${qq} × ${d} = ?`,resp:prod,pos:[...numEm(prod,linha+1,idx,'−'),{sb:{r:linha+1,c0,c1:idx}}],erro:`Tabuada: ${qq} × ${d} = ${prod}.`});
+  const pr={foco:{r:linha+2,c0,c1:idx},txt:`Subtraia: ${P} − ${prod} = ?`,resp:rem,pos:numEm(rem,linha+2,idx),erro:`${P} − ${prod} = ${rem}.`};passos.push(pr);
+  if(idx>=L-1)break;
+  idx++;P=rem*10+DS[idx];pr.pos.push({k:(linha+2)+':'+idx,v:DS[idx],cls:'desce'});pr.depois=`Desce o ${DS[idx]}: agora temos ${P}.`;
+  linha+=2;ciclo++}
+ return{tipo:'÷',D,d,r:D/d,L,linhas:linha+3,passos}}
+
+let AR=null; // conta armada em andamento: {conta,k,cells,quo,el,fim,msg}
+function aplicarArm(lista){for(const m of lista||[]){if(m.q!==undefined){AR.quo+=String(m.q);continue}
+ if(m.sb){for(let c=m.sb.c0;c<=m.sb.c1;c++){const k=m.sb.r+':'+c,o=AR.cells[k]||{};AR.cells[k]={...o,cls:((o.cls||'')+' sb').trim()}}continue}
+ const o=AR.cells[m.k]||{};AR.cells[m.k]={v:m.v!==undefined?m.v:o.v,cls:[o.cls,m.cls,m.v!==undefined&&!m.cls?'novo':''].filter(Boolean).join(' ')}}}
+function desenharArm(){const c=AR.conta,p=c.passos[AR.k],cel=k=>AR.cells[k]||{};let h='';
+ if(c.tipo==='÷'){const f=p&&p.foco;let g='';for(let r=0;r<c.linhas;r++)for(let col=-1;col<c.L;col++){const x=cel(r+':'+col),foco=f&&!f.quo?false:false;
+   const emFoco=f&&r===f.r&&col>=f.c0&&col<=f.c1;g+=`<div class="${[x.cls,emFoco?'foco':''].filter(Boolean).join(' ').replace('novo','')}${x.cls&&x.cls.includes('novo')?' novo':''}">${x.v??''}</div>`}
+  h=`<div class="chave"><div class="arm" style="grid-template-columns:repeat(${c.L+1},50px)">${g}</div><div><div class="dv">${c.d}</div><div class="quo${f&&f.quo?' foco':''}">${AR.quo||' '}</div></div></div>`}
+ else{const top=c.tipo==='−'?'emp':'vai',n=c.cols,linhas=[top,'a','b','res'];let g='';
+  for(const r of linhas){g+=`<div class="${r===top?'peq':''}${r==='b'?' op':''}">${r==='b'?c.tipo:''}</div>`;
+   for(let col=n-1;col>=0;col--){const x=cel(r+':'+col),foco=p&&p.col===col&&!AR.fim;g+=`<div class="${[r===top?'peq':'',r==='res'?'tr':'',x.cls||'',foco&&r!==top?'foco':''].filter(Boolean).join(' ')}">${x.v??''}</div>`}}
+  h=`<div class="arm" style="grid-template-columns:repeat(${n+1},50px)">${g}</div>`}
+ AR.el.innerHTML=`<div class="armWrap">${h}<div class="passo">${AR.msg?`<small>${AR.msg}</small>`:''}${AR.fim?`✅ Conta pronta: <b>${c.tipo==='÷'?`${c.D} ÷ ${c.d}`:`${c.a} ${c.tipo} ${c.b}`} = ${c.r}</b>`:p.txt}</div></div>`;
+ for(const k in AR.cells)if(AR.cells[k].cls)AR.cells[k].cls=AR.cells[k].cls.replace(/\bnovo\b/,'').trim()}
+function iniciarArmada(conta,el){AR={conta,k:0,cells:{},quo:'',el,fim:false,msg:''};
+ if(conta.tipo==='÷'){dig(conta.D).forEach((d,j)=>AR.cells['0:'+j]={v:d})}
+ else{dig(conta.a).reverse().forEach((d,j)=>AR.cells['a:'+j]={v:d});if(conta.tipo==='×')AR.cells['b:0']={v:conta.b};else dig(conta.b).reverse().forEach((d,j)=>AR.cells['b:'+j]={v:d})}
+ aplicarArm(conta.passos[0].pre);desenharArm()}
+function responderArmada(v){const p=AR.conta.passos[AR.k];if(v!==p.resp)return 'erro';
+ aplicarArm(p.pos);AR.msg=p.depois||'Isso! ✔';AR.k++;if(AR.k>=AR.conta.passos.length){AR.fim=true;desenharArm();return 'fim'}
+ aplicarArm(AR.conta.passos[AR.k].pre);desenharArm();return 'ok'}
+function resultadoArmada(){const c=AR.conta;if(c.tipo==='÷')return +AR.quo;let s='';for(let col=c.cols;col>=0;col--){const x=AR.cells['res:'+col];if(x&&x.v!==undefined)s+=x.v}return +s}
+/* a soma (ou subtração) final de cada truque da tabuada, para armar na ajuda: 7 × 6 → 35 + 7 */
+function contaDoTruque(a,b){const e=estrMult(a,b),A=e.a,B=e.b;if(A>=6&&A<=8)return armarSoma(5*B,(A-5)*B);if(A===3)return armarSoma(2*B,B);if(A===4)return armarSoma(2*B,2*B);if(A===2&&B>=5)return armarSoma(B,B);if(A===9)return armarSub(10*B,B);return null}
+
 /* =================== GERADORES DE PERGUNTA =================== */
 const NOMES=['Ester','a robô Lumi','o dragão Pixel','a fada Nina'];
 function qMult(tabs,{rev=[]}={}){const t=Math.random()<.3&&rev.length?pick(rev):pick(tabs),n=rnd(1,10),[a,b]=Math.random()<.5?[t,n]:[n,t];
- return{p:`${a} × ${b}`,r:a*b,ver:(el)=>vEstrutura(el,a,b),dica:()=>estrMult(a,b).texto,fato:Math.min(a,b)+'x'+Math.max(a,b),
+ return{p:`${a} × ${b}`,r:a*b,ver:(el)=>vEstrutura(el,a,b),arm:()=>contaDoTruque(a,b),dica:()=>estrMult(a,b).texto,fato:Math.min(a,b)+'x'+Math.max(a,b),
   hist:()=>`${pick(NOMES)} encontrou ${a} baús com ${b} cristais em cada um. Quantos cristais ao todo?`}}
 function qAmigos10(){const a=rnd(1,9);return{p:`${a} + ? = 10`,r:10-a,ver:(el)=>vQ10(el,a,0),dica:()=>`Amigos do 10: ${a} + ${10-a} = 10. Conte os lugares vazios do quadro.`,hist:()=>`A nave precisa de 10 baterias. Já tem ${a}. Quantas faltam?`}}
 function qCompletar10(){let a,b;do{a=rnd(5,9);b=rnd(3,9)}while(a+b<=10);const f=10-a;return{p:`${a} + ${b}`,r:a+b,ver:(el)=>vQ10(el,a,b),dica:()=>`Complete o 10: ${a} + ${f} = 10. Sobram ${b-f}. 10 + ${b-f} = ${a+b}.`,hist:()=>`${pick(NOMES)} tinha ${a} moedas de energia e ganhou ${b}. Com quantas ficou?`}}
 function qDezenas(op){const a=rnd(1,9)*10,b=op==='+'?rnd(1,(100-a)/10)*10:rnd(1,a/10)*10;const r=op==='+'?a+b:a-b;
- return{p:`${a} ${op==='+'?'+':'−'} ${b}`,r,ver:(el)=>vBlocos(el,a,b,op==='+'?'+':'−'),dica:()=>`Pense em dezenas: ${a/10} ${op==='+'?'+':'−'} ${b/10} = ${r/10} dezenas = ${r}.`,
+ return{p:`${a} ${op==='+'?'+':'−'} ${b}`,r,armada:op==='+'?armarSoma(a,b):armarSub(a,b),ver:(el)=>vBlocos(el,a,b,op==='+'?'+':'−'),dica:()=>`Pense em dezenas: ${a/10} ${op==='+'?'+':'−'} ${b/10} = ${r/10} dezenas = ${r}.`,
   hist:()=>op==='+'?`Uma caixa tem ${a} adesivos e outra tem ${b}. Quantos adesivos ao todo?`:`Havia ${a} balões e ${b} voaram. Quantos ficaram?`}}
 function qSoma2(reagrupa){let a,b;do{a=rnd(11,69);b=rnd(11,29)}while(reagrupa?(a%10+b%10<10||a+b>99):(a%10+b%10>=10));const r=a+b;
  const d=Math.floor(a/10)*10+Math.floor(b/10)*10,u=a%10+b%10;
- return{p:`${a} + ${b}`,r,ver:(el)=>vBlocos(el,a,b,'+'),dica:()=>`Dezenas com dezenas: ${Math.floor(a/10)*10} + ${Math.floor(b/10)*10} = ${d}. Unidades: ${a%10} + ${b%10} = ${u}${u>=10?' (vira mais uma dezena!)':''}. ${d} + ${u} = ${r}.`,
+ return{p:`${a} + ${b}`,r,armada:armarSoma(a,b),ver:(el)=>vBlocos(el,a,b,'+'),dica:()=>`Dezenas com dezenas: ${Math.floor(a/10)*10} + ${Math.floor(b/10)*10} = ${d}. Unidades: ${a%10} + ${b%10} = ${u}${u>=10?' (vira mais uma dezena!)':''}. ${d} + ${u} = ${r}.`,
   hist:()=>`${pick(NOMES)} leu ${a} páginas ontem e ${b} hoje. Quantas páginas ao todo?`}}
 function qTirar10(){const a=rnd(4,10),b=rnd(1,a-1);return{p:`${a} − ${b}`,r:a-b,ver:(el)=>vTirar(el,a,b),dica:()=>`Risque ${b} bolinhas: sobram ${a-b}.`,hist:()=>`Havia ${a} biscoitos no pote. ${pick(NOMES)} comeu ${b}. Quantos sobraram?`}}
 function qVoltar10(){let a,b;do{a=rnd(11,18);b=rnd(3,9)}while(a-b>=10||a%10>=b);const u=a%10;return{p:`${a} − ${b}`,r:a-b,ver:(el)=>vReta(el,a,[u,b-u]),dica:()=>`Volte até o 10 primeiro: ${a} − ${u} = 10. Falta tirar ${b-u}: 10 − ${b-u} = ${a-b}.`,hist:()=>`O robô tinha ${a} parafusos e usou ${b}. Quantos sobraram?`}}
 function qSub2(empresta){let a,b;do{a=rnd(31,99);b=rnd(11,a-10)}while(empresta?(a%10>=b%10):(a%10<b%10));const r=a-b;
  const D=Math.floor(b/10)*10,u=a%10,resto=b%10-u;
- return{p:`${a} − ${b}`,r,ver:(el)=>empresta?vReta(el,a,[D,u,resto]):vBlocos(el,a,b,'−'),dica:()=>empresta?`Tire as dezenas: ${a} − ${D} = ${a-D}.${u?` Volte até a dezena: ${a-D} − ${u} = ${a-D-u}.`:''} Falta tirar ${resto}: ${a-D-u} − ${resto} = ${r}.`:`Dezenas: ${Math.floor(a/10)} − ${Math.floor(b/10)} = ${Math.floor(a/10)-Math.floor(b/10)}. Unidades: ${a%10} − ${b%10} = ${a%10-b%10}. Resultado: ${r}.`,
+ return{p:`${a} − ${b}`,r,armada:armarSub(a,b),ver:(el)=>empresta?vReta(el,a,[D,u,resto]):vBlocos(el,a,b,'−'),dica:()=>empresta?`Tire as dezenas: ${a} − ${D} = ${a-D}.${u?` Volte até a dezena: ${a-D} − ${u} = ${a-D-u}.`:''} Falta tirar ${resto}: ${a-D-u} − ${resto} = ${r}.`:`Dezenas: ${Math.floor(a/10)} − ${Math.floor(b/10)} = ${Math.floor(a/10)-Math.floor(b/10)}. Unidades: ${a%10} − ${b%10} = ${a%10-b%10}. Resultado: ${r}.`,
   hist:()=>`A loja tinha ${a} figurinhas e vendeu ${b}. Quantas ficaram?`}}
 function qVezes10(){const a=rnd(2,9),b=10;return{p:`${a} × ${b}`,r:a*b,ver:(el)=>vBlocos(el,a*10,0,''),dica:()=>`${a} grupos de 10 = ${a} dezenas = ${a*10}.`,hist:()=>`Cada pacote tem ${b} cartas. Quantas cartas há em ${a} pacotes?`}}
-function qDezenaVez(){const d=rnd(2,9)*10,b=rnd(2,5);return{p:`${d} × ${b}`,r:d*b,ver:(el)=>vArea(el,d,b),dica:()=>`${d} é ${d/10} dezenas. ${d/10} × ${b} = ${d/10*b} dezenas = ${d*b}.`,hist:()=>`Uma fileira tem ${d} cadeiras. Quantas cadeiras há em ${b} fileiras?`}}
-function qArea(){const a=rnd(12,39),b=rnd(2,5),d=Math.floor(a/10)*10,u=a%10;return{p:`${a} × ${b}`,r:a*b,ver:(el)=>vArea(el,a,b),dica:()=>`Parta o ${a} em ${d} e ${u}: ${d} × ${b} = ${d*b}; ${u} × ${b} = ${u*b}; ${d*b} + ${u*b} = ${a*b}.`,hist:()=>`Cada caixa tem ${a} lápis de cor. Quantos lápis há em ${b} caixas?`}}
+function qDezenaVez(){const d=rnd(2,9)*10,b=rnd(2,5);return{p:`${d} × ${b}`,r:d*b,armada:armarMult(d,b),ver:(el)=>vArea(el,d,b),dica:()=>`${d} é ${d/10} dezenas. ${d/10} × ${b} = ${d/10*b} dezenas = ${d*b}.`,hist:()=>`Uma fileira tem ${d} cadeiras. Quantas cadeiras há em ${b} fileiras?`}}
+function qArea(){const a=rnd(12,39),b=rnd(2,5),d=Math.floor(a/10)*10,u=a%10;return{p:`${a} × ${b}`,r:a*b,armada:armarMult(a,b),ver:(el)=>vArea(el,a,b),dica:()=>`Parta o ${a} em ${d} e ${u}: ${d} × ${b} = ${d*b}; ${u} × ${b} = ${u*b}; ${d*b} + ${u*b} = ${a*b}.`,hist:()=>`Cada caixa tem ${a} lápis de cor. Quantos lápis há em ${b} caixas?`}}
 function qRepartir(){const g=rnd(2,5),c=rnd(2,5),t=g*c;return{p:`${t} ÷ ${g}`,r:c,ver:(el,aj)=>vCestas(el,t,g,aj),dica:()=>`Reparta ${t} em ${g} cestas, uma de cada vez em cada cesta: cada uma fica com ${c}.`,hist:()=>`${t} estrelas foram divididas igualmente entre ${g} amigos. Quantas cada um ganha?`}}
+function qDivArmada(min,max){let d,D;do{d=rnd(2,9);D=d*rnd(Math.ceil(min/d),Math.floor(max/d))}while(D<min||D>max||D/d<10);const r=D/d;
+ return{p:`${D} ÷ ${d}`,r,armada:armarDiv(D,d),ver:(el)=>{el.innerHTML=''},dica:()=>`Na chave, comece pela esquerda: quantas vezes o ${d} cabe? Multiplique, subtraia e desça o próximo número. ${D} ÷ ${d} = ${r}.`,
+  hist:()=>`${D} figurinhas vão ser divididas igualmente em ${d} álbuns. Quantas ficam em cada álbum?`}}
 function qDiv(tabs){const g=pick(tabs),c=rnd(1,10),t=g*c;return{p:`${t} ÷ ${g}`,r:c,ver:(el,aj)=>aj?vEstrutura(el,g,c):(el.innerHTML=`<div class="cabeca">🔎 Pense na tabuada: <b>${g} × ? = ${t}</b></div>`),dica:()=>`Divisão é a tabuada ao contrário: ${g} × ? = ${t}. Como ${g} × ${c} = ${t}, então ${t} ÷ ${g} = ${c}.`,fato:Math.min(g,c)+'x'+Math.max(g,c),hist:()=>`${pick(NOMES)} guardou ${t} cristais em sacos com ${g} em cada. Quantos sacos usou?`}}
 
 /* =================== MUNDOS E FASES =================== */
@@ -350,7 +440,9 @@ const MUNDOS=[
   {id:'d2',n:'Tabuada ao contrário (2, 5, 10)',ic:'🔄',ensina:'Se 5 × 4 = 20, então 20 ÷ 5 = 4.',g:()=>qDiv([2,5,10])},
   {id:'d3',n:'Tabuada ao contrário (3, 4)',ic:'🔄',ensina:'Se 3 × 6 = 18, então 18 ÷ 3 = 6.',g:()=>qDiv([3,4])},
   {id:'d4',n:'Tabuada ao contrário (6 a 9)',ic:'🔄',ensina:'Se 7 × 8 = 56, então 56 ÷ 7 = 8.',g:()=>qDiv([6,7,8,9])},
-  {id:'dchefe',n:'Rainha do Castelo',ic:'👸',chefe:true,ensina:'Chefão final: todas as divisões. Você chegou longe!',g:()=>pick([qRepartir,()=>qDiv([2,3,4,5,6,7,8,9,10])])()}])];
+  {id:'d5',n:'Divisão na chave',ic:'🔑',ensina:'84 ÷ 4 na chave: o 4 cabe 2 vezes no 8; 2 × 4 = 8; 8 − 8 = 0; desce o 4; o 4 cabe 1 vez no 4. Resposta: 21.',g:()=>qDivArmada(20,99)},
+  {id:'d6',n:'Chave grande',ic:'🗝️',ensina:'Com 3 números é igual: cabe quantas vezes, multiplica, subtrai, desce o próximo. Passo a passo!',g:()=>qDivArmada(100,500)},
+  {id:'dchefe',n:'Rainha do Castelo',ic:'👸',chefe:true,ensina:'Chefão final: todas as divisões. Você chegou longe!',g:()=>pick([qRepartir,()=>qDiv([2,3,4,5,6,7,8,9,10]),()=>qDivArmada(20,99)])()}])];
 const TODAS=MUNDOS.flatMap((m,mi)=>m.fases.map((f,fi)=>({...f,mi,fi})));
 
 /* =================== ESTADO, XP, RECOMPENSAS =================== */
@@ -401,15 +493,28 @@ function mostrar(){const q=fila[i];digitado='';errouAtual=false;usouAjuda=false;
  else if(q.revisao)cab('🔁 Revisão de uma fase que você já venceu: só com a cabeça!');
  else if(i>=5||q.missao)cab('🧠 Agora só com a cabeça! Se precisar, use a 💡 Ajuda.');
  else{q.ver($('visual'),false);if(i>=2)apaga=setTimeout(()=>{if(!usouAjuda&&$('bSeguir').hidden)cab('👀 Viu a forma? Agora pense na conta!')},2000)}
+ AR=null;
+ if(q.armada){clearTimeout(apaga);$('visual').innerHTML='<div id="armBox" style="width:100%"></div>';iniciarArmada(q.armada,$('armBox'));
+  reagir('feliz',['avaFase'],'Vamos armar a conta e fazer um passo de cada vez. Digite o número de cada passo!')}
  $('titulaRev').hidden=!q.revisao;pontos()}
-function ajuda(){const q=fila[i];usouAjuda=true;clearTimeout(apaga);q.ver($('visual'),true);$('dica').hidden=false;$('dica').textContent='💡 '+q.dica()+(q.missao?` (A conta da missão é ${q.p}.)`:'');reagir('pensando',['avaFase'],'Olha a figura comigo… dá para ver a conta!')}
+function ajuda(){const q=fila[i];usouAjuda=true;clearTimeout(apaga);
+ if(AR&&!AR.fim){$('dica').hidden=false;$('dica').textContent='💡 '+AR.conta.passos[AR.k].erro;reagir('pensando',['avaFase'],'Olha a dica deste passo e tente de novo!');return}
+ q.ver($('visual'),true);$('dica').hidden=false;$('dica').textContent='💡 '+q.dica()+(q.missao?` (A conta da missão é ${q.p}.)`:'');reagir('pensando',['avaFase'],'Olha a figura comigo… dá para ver a conta!');
+ const c=q.arm&&q.arm();if(c){$('visual').insertAdjacentHTML('beforeend','<div class="passo" style="margin-top:14px">✏️ Agora arme a conta do truque e resolva passo a passo:</div><div id="armBox" style="width:100%"></div>');iniciarArmada(c,$('armBox'))}}
 $('bAjuda').onclick=ajuda;
 function registrarFato(q,ok){if(!q.fato)return;const f=estado.fatos[q.fato]||(estado.fatos[q.fato]={ok:0,erro:0,seq:0});if(ok){f.ok++;f.seq++}else{f.erro++;f.seq=0}}
 const VIVA=['Isso! 🎉','Mandou bem!','Você viu a conta!','Uau, que estratégia!','Acertou!','Arrasou! 💎'];
-function conferir(){if(!digitado||!$('bSeguir').hidden)return;const q=fila[i];
- if(+digitado===q.r){const limpo=!errouAtual&&!usouAjuda;resultados.push(limpo?'ok':'aj');if(i<N){if(limpo)acertos++;else ajudas++}registrarFato(q,limpo);
-  estado.xp+=limpo?10:5;salvar();som('ok');reagir('festa',['avaFase'],pick(VIVA)+(limpo?' +10 XP':' +5 XP (com ajuda também vale!)'));
-  if(!usouAjuda){q.ver($('visual'),true)}$('bSeguir').hidden=false;$('bAjuda').hidden=true;$('bSeguir').focus();pontos()}
+function acertou(q){const limpo=!errouAtual&&!usouAjuda;resultados.push(limpo?'ok':'aj');if(i<N){if(limpo)acertos++;else ajudas++}registrarFato(q,limpo);
+ estado.xp+=limpo?10:5;salvar();som('ok');reagir('festa',['avaFase'],pick(VIVA)+(limpo?' +10 XP':' +5 XP (com ajuda também vale!)'));
+ $('resp').textContent=q.r;if(!usouAjuda&&!AR){q.ver($('visual'),true)}$('bSeguir').hidden=false;$('bAjuda').hidden=true;$('bSeguir').focus({preventScroll:true});pontos()}
+function conferir(){if(!$('bSeguir').hidden)return;const q=fila[i];
+ if(AR&&!AR.fim){if(!digitado)return;const v=+digitado;digitado='';$('resp').textContent='';const r=responderArmada(v);
+  if(r==='erro'){if(!errouAtual&&!q.missao&&q.armada){repetir.push(q)}errouAtual=true;som('erro');$('dica').hidden=false;$('dica').textContent='💡 '+AR.conta.passos[AR.k].erro;reagir('ops',['avaFase'],'Quase! Leia a dica e tente esse número de novo.')}
+  else if(r==='fim')acertou(q);
+  else{som('ok');reagir('feliz',['avaFase'],AR.msg)}
+  return}
+ if(!digitado)return;
+ if(+digitado===q.r)acertou(q);
  else{if(!errouAtual){registrarFato(q,false);repetir.push(q)}errouAtual=true;som('erro');reagir('ops',['avaFase'],'Quase! Vamos olhar a figura juntas.');ajuda();digitado='';$('resp').textContent=''}}
 function seguir(){i++;if(i<fila.length){mostrar();return}
  if(repetir.length&&!fila.revisao){fila.revisao=true;repetir.forEach(q=>{const c={...q,missao:false};fila.push(c)});repetir=[];mostrar();reagir('feliz',['avaFase'],'Revisão rapidinha: as que deram trabalho voltaram. Agora você já sabe o truque!');return}
@@ -442,6 +547,7 @@ function pais(){const feitas=TODAS.filter(f=>estado.fases[f.id]?.estrelas).lengt
 $('bLiberar').onclick=()=>{if(confirm('Liberar todas as fases? (Útil para os pais conhecerem o jogo. A Ester continua ganhando estrelas normalmente.)')){estado.liberar=true;salvar();ir('mapa')}};
 $('bZerar').onclick=()=>{if(confirm('Apagar TODO o progresso da Ester neste navegador (XP, cristais, estrelas e itens)?')){localStorage.removeItem(CHAVE);location.reload()}};
 
+window.__arm={armarSoma,armarSub,armarMult,armarDiv,iniciarArmada,responderArmada,resultadoArmada,contaDoTruque,atual:()=>AR}; // para o teste
 window.__v=vEstrutura; // para o teste conferir que a figura não revela a resposta
 window.jornadaAPI={MUNDOS,TODAS,estrMult,estado:()=>estado,atual:()=>fila[i],comecar:id=>comecar(TODAS.find(f=>f.id===id)),ir};
 hud();mapa();

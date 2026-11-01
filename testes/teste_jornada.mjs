@@ -105,6 +105,43 @@ const p6 = await avalia("({txt:document.getElementById('visual').textContent,rev
 confere('J13 · 3ª pergunta: a figura aparece e some em 2 s; 6ª: só números', p3a > 0 && /Viu a forma/.test(p3b) && /cabeça/.test(p6.txt), JSON.stringify({ p3a, p3b, p6 }));
 confere('J14 · revisão espaçada: a 6ª pergunta vem de uma fase já vencida', p6.rev, JSON.stringify(p6));
 await avalia("jornadaAPI.ir('mapa')");
+// J15 · conta armada: cada passo aceita a resposta certa e o resultado escrito na conta é o certo (300 por fase + truques)
+const resolver = `function resolver(conta){const box=document.createElement('div');__arm.iniciarArmada(conta,box);let r;for(const p of conta.passos){r=__arm.responderArmada(p.resp);if(r==='erro')return 'passo recusado: '+p.txt}return r==='fim'?__arm.resultadoArmada():'não terminou'}`;
+const j15 = await avalia(`(function(){${resolver};const ruins=[];let n=0;
+ for(const f of jornadaAPI.TODAS)for(let k=0;k<300;k++){const q=f.g();if(!q.armada)continue;n++;const v=resolver(q.armada);if(v!==q.r)ruins.push(f.id+': '+q.p+' deu '+v)}
+ for(let a=1;a<=10;a++)for(let b=1;b<=10;b++){const c=__arm.contaDoTruque(a,b);if(!c)continue;n++;const v=resolver(c);if(v!==a*b)ruins.push('truque '+a+'×'+b+' deu '+v)}
+ return {n,ruins:[...new Set(ruins)].slice(0,6)}})()`);
+confere('J15 · conta armada: passos e resultado certos em todas as fases e truques', j15.ruins && j15.ruins.length === 0 && j15.n > 2000, j15.ruins ? (j15.ruins.join(' | ') || `${j15.n} contas armadas resolvidas`) : JSON.stringify(j15));
+const j15a = await avalia(`(function(){${resolver};const c=__arm.armarSoma(38,27);c.passos[0].pos=[{k:'res:0',v:9},{k:'vai:1',v:1}];const v=resolver(c);
+ const box=document.createElement('div');__arm.iniciarArmada(__arm.armarSoma(38,27),box);const rec=__arm.responderArmada(14);return {sabotada:v,recusaErrado:rec}})()`);
+confere('J15a · controle: a régua acusa conta armada errada e o passo recusa resposta errada', j15a.sabotada !== 65 && j15a.recusaErrado === 'erro', JSON.stringify(j15a));
+// J16 · soma armada com "vai 1" jogada pelo teclado
+await avalia("jornadaAPI.estado().liberar=true;jornadaAPI.comecar('a5')"); await espera(300);
+let qa = await avalia('jornadaAPI.atual()');
+const passosA = await avalia('__arm.atual().conta.passos.map(p=>p.resp)');
+await responder(passosA[0]); await espera(200); await print('J-11-soma-armada-vai-um.png');
+for (const v of passosA.slice(1)) await responder(v);
+const j16 = await avalia("({fim:__arm.atual().fim,resp:document.getElementById('resp').textContent,seguir:!document.getElementById('bSeguir').hidden,vai:document.querySelectorAll('#armBox .peq.novo, #armBox .peq').length})");
+await print('J-12-soma-armada-pronta.png');
+confere('J16 · soma armada passo a passo pelo teclado chega ao resultado', j16.fim && +j16.resp === qa.r && j16.seguir, JSON.stringify({ ...j16, r: qa.r, passos: passosA }));
+// J17 · divisão na chave jogada pelo teclado
+await avalia("jornadaAPI.comecar('d5')"); await espera(300);
+qa = await avalia('jornadaAPI.atual()'); const passosD = await avalia('__arm.atual().conta.passos.map(p=>p.resp)');
+for (const [j, v] of passosD.entries()) { await responder(v); if (j === 2) await print('J-13-chave-meio.png'); }
+const j17 = await avalia("({fim:__arm.atual().fim,quo:document.querySelector('#armBox .quo').textContent.trim(),seguir:!document.getElementById('bSeguir').hidden})");
+await print('J-14-chave-pronta.png');
+confere('J17 · divisão na chave passo a passo: o quociente aparece embaixo do divisor', j17.fim && +j17.quo === qa.r && j17.seguir, JSON.stringify({ ...j17, p: qa.p, r: qa.r }));
+// J18 · ajuda da tabuada arma a conta do truque (7 × 6 → 35 + 7) e resolver a conta responde a pergunta
+await avalia("jornadaAPI.comecar('t7')"); await espera(300);
+let t = null; for (let k = 0; k < 20; k++) { t = await avalia("(q=>({a:+q.p.split(' × ')[0],b:+q.p.split(' × ')[1],r:q.r}))(jornadaAPI.atual())"); if (t.a !== 1 && t.b !== 1 && t.a !== 10 && t.b !== 10 && t.a !== 5 && t.b !== 5) break; await avalia("jornadaAPI.comecar('t7')"); }
+await avalia("document.getElementById('bAjuda').click()"); await espera(200);
+const temArm = await avalia("!!document.querySelector('#armBox .arm')");
+await print('J-15-ajuda-tabuada-armada.png');
+const passosT = await avalia('__arm.atual()?.conta.passos.map(p=>p.resp)||[]');
+for (const v of passosT) await responder(v);
+const j18 = await avalia("({seguir:!document.getElementById('bSeguir').hidden,resp:document.getElementById('resp').textContent})");
+confere('J18 · ajuda da tabuada arma a conta do truque e resolvê-la responde a pergunta', temArm && passosT.length > 0 && j18.seguir && +j18.resp === t.r, JSON.stringify({ temArm, t, passosT, ...j18 }));
+await avalia("jornadaAPI.ir('mapa')");
 confere('J10 · zero erro de JavaScript', erros.length === 0, erros.join(' | '));
 ws.close(); chrome.kill();
 const f = res.filter(x => !x).length; console.log(`\n${res.length - f} de ${res.length} conferências OK`); process.exit(f ? 1 : 0);
