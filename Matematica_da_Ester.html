@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Matemática da Ester</title>
+<!-- Método: Concreto → Pictórico → Abstrato. A conta vira figura (grade, quadro de 10) antes de virar número.
+     Nada de cronômetro: o objetivo é ver a conta, não correr. Progresso salvo só neste navegador. -->
+<style>
+:root{--fundo:#fffaf2;--papel:#ffffff;--tinta:#2b2340;--suave:#6b6380;--linha:#eadfce;
+  --azul:#3b6fd8;--azul2:#cfe0ff;--laranja:#f08a24;--laranja2:#ffe0bf;--verde:#2e9e5b;--verde2:#d6f3e1;
+  --roxo:#8a4fd3;--roxo2:#eadcff;--vermelho:#d64545;--amarelo:#ffcf33;--raio:18px}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--fundo);color:var(--tinta);font:18px/1.45 "Segoe UI Rounded","Segoe UI",system-ui,Arial,sans-serif}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:4px solid var(--amarelo);outline-offset:2px}
+header{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 20px;background:#fff;border-bottom:3px solid var(--linha)}
+header h1{margin:0;font-size:28px;letter-spacing:-.01em}header h1 span{color:var(--laranja)}
+.estrelas{margin-left:auto;font-size:22px;font-weight:800;background:#fff7d6;border:2px solid var(--amarelo);border-radius:999px;padding:6px 14px}
+nav{display:flex;gap:8px;flex-wrap:wrap;padding:12px 20px;background:#fff;border-bottom:1px solid var(--linha)}
+nav button{border:2px solid var(--linha);background:#fff;border-radius:14px;padding:10px 16px;font-weight:800;font-size:18px}
+nav button.on{background:var(--azul);border-color:var(--azul);color:#fff}
+main{max-width:1100px;margin:0 auto;padding:18px 16px 60px}
+section{display:none}section.on{display:block}
+.cartao{background:var(--papel);border:2px solid var(--linha);border-radius:var(--raio);padding:18px;margin-bottom:16px}
+h2{margin:0 0 10px;font-size:26px}
+.dica{color:var(--suave);margin:4px 0 12px}
+.escolha{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0}
+.escolha b{min-width:200px}
+.num{width:48px;height:48px;border-radius:12px;border:2px solid var(--linha);background:#fff;font-weight:800;font-size:20px}
+.num.on{background:var(--laranja);border-color:var(--laranja);color:#fff}
+.num.az.on{background:var(--azul);border-color:var(--azul)}
+.frase{font-size:30px;font-weight:800;margin:10px 0;text-align:center}
+.frase .g{color:var(--azul)}.frase .c{color:var(--laranja)}.frase .r{color:var(--verde)}
+.acoes{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:10px 0}
+.btn{border:0;border-radius:14px;padding:12px 18px;font-weight:800;font-size:18px;background:var(--azul2);color:#123a8f}
+.btn.forte{background:var(--azul);color:#fff}.btn.ok{background:var(--verde);color:#fff}.btn.aviso{background:var(--laranja2);color:#7a3d00}
+.btn[aria-pressed="true"]{outline:3px solid var(--azul)}
+/* grade (arranjo): cada linha é um grupo; espaço a cada 5 para ver cinco de uma vez, sem contar um por um */
+.grade{display:flex;flex-direction:column;align-items:center;gap:6px;margin:12px auto;padding:10px}
+.linha{display:flex;align-items:center;gap:6px}
+.linha.sep5{margin-top:12px}
+.bol{width:30px;height:30px;border-radius:50%;background:var(--azul);box-shadow:inset 0 -3px 0 rgba(0,0,0,.18)}
+.bol.p2{background:var(--laranja)}
+.bol.fant{background:transparent;border:3px dashed #b9b0c9;box-shadow:none}
+.bol.gap{margin-left:14px}
+.rot{min-width:120px;margin-left:12px;font-weight:800;color:var(--suave);font-size:18px}
+.rot.p2{color:var(--laranja)}.rot.fant{color:#a39abb}
+.estrategia{background:var(--verde2);border-left:8px solid var(--verde);border-radius:12px;padding:12px 16px;font-size:21px;font-weight:700;margin-top:10px}
+/* quadro de 10 */
+.quadros{display:flex;gap:22px;justify-content:center;flex-wrap:wrap;margin:14px 0}
+.q10{display:grid;grid-template-columns:repeat(5,44px);gap:6px;padding:10px;border:4px solid var(--tinta);border-radius:12px;background:#fff}
+.q10 i{width:44px;height:44px;border-radius:8px;border:2px solid var(--linha);display:grid;place-items:center}
+.q10 i.a::after,.q10 i.b::after{content:"";width:32px;height:32px;border-radius:50%}
+.q10 i.a::after{background:var(--azul)}.q10 i.b::after{background:var(--laranja)}
+.passos{font-size:24px;font-weight:800;text-align:center;line-height:1.8}
+.passos .a{color:var(--azul)}.passos .b{color:var(--laranja)}.passos .r{color:var(--verde)}
+/* mapa */
+.mapa{display:grid;grid-template-columns:repeat(11,minmax(38px,1fr));gap:4px;max-width:760px;margin:0 auto}
+.mapa div,.mapa button{aspect-ratio:1;border-radius:10px;display:grid;place-items:center;font-weight:800;font-size:16px}
+.mapa .cab{background:var(--tinta);color:#fff}
+.mapa button{border:2px solid var(--linha);background:#f3f0ea}
+.mapa button.sei{background:var(--verde2);border-color:var(--verde);color:#1d6b3d}
+.mapa button.tre{background:#fff3c4;border-color:var(--amarelo)}
+.mapa button.ancora{box-shadow:inset 0 0 0 3px var(--azul2)}
+.legenda{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin:12px 0;font-weight:700}
+.legenda span::before{content:"";display:inline-block;width:18px;height:18px;border-radius:5px;margin-right:6px;vertical-align:-3px;border:2px solid var(--linha);background:#f3f0ea}
+.legenda .l-sei::before{background:var(--verde2);border-color:var(--verde)}.legenda .l-tre::before{background:#fff3c4;border-color:var(--amarelo)}
+/* desafio */
+.pergunta{font-size:54px;font-weight:900;text-align:center;margin:6px 0}
+.resposta{font-size:48px;font-weight:900;text-align:center;min-height:68px;border-bottom:4px solid var(--linha);max-width:220px;margin:0 auto 12px}
+.teclado{display:grid;grid-template-columns:repeat(3,84px);gap:10px;justify-content:center}
+.teclado button{height:72px;border-radius:16px;border:2px solid var(--linha);background:#fff;font-size:30px;font-weight:900}
+.teclado .ok{background:var(--verde);color:#fff;border-color:var(--verde)}
+.retorno{text-align:center;font-size:24px;font-weight:800;min-height:36px;margin:10px 0}
+.retorno.bom{color:var(--verde)}.retorno.ver{color:#a14b00}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tabs label{display:inline-flex;align-items:center;gap:6px;border:2px solid var(--linha);border-radius:12px;padding:6px 10px;font-weight:800;background:#fff}
+.tabs input{width:20px;height:20px;accent-color:var(--azul)}
+.oculta{visibility:hidden}
+.pais p,.pais li{font-size:18px}
+@media(max-width:640px){.bol{width:22px;height:22px}.q10{grid-template-columns:repeat(5,34px)}.q10 i{width:34px;height:34px}.q10 i.a::after,.q10 i.b::after{width:24px;height:24px}.escolha b{min-width:auto}.pergunta{font-size:44px}}
+</style>
+</head>
+<body>
+<header><h1>Matemática da <span>Ester</span></h1><div class="estrelas" aria-live="polite">⭐ <span id="nEstrelas">0</span></div></header>
+<nav aria-label="Telas">
+ <button data-tela="ver" class="on">👀 Ver a conta</button>
+ <button data-tela="dez">🔟 Somar com o 10</button>
+ <button data-tela="mapa">🗺️ Mapa da tabuada</button>
+ <button data-tela="desafio">🎯 Desafio</button>
+ <button data-tela="pais">👨‍👩‍👧 Para os pais</button>
+</nav>
+<main>
+
+<section id="ver" class="on">
+ <div class="cartao">
+  <h2>👀 Ver a conta</h2>
+  <p class="dica">Multiplicar é juntar <b>grupos iguais</b>. Cada linha é um grupo. Repare no espacinho a cada 5: dá para ver <b>5 de uma vez</b>, sem contar de um em um.</p>
+  <div class="escolha"><b>Quantos grupos?</b><span id="selA"></span></div>
+  <div class="escolha"><b>Quantos em cada grupo?</b><span id="selB"></span></div>
+ </div>
+ <div class="cartao">
+  <div class="frase" id="frase"></div>
+  <div class="acoes">
+   <button class="btn" id="bPulo" aria-pressed="true">🦘 Contar pulando</button>
+   <button class="btn" id="bPartir" aria-pressed="false">✂️ Partir a conta</button>
+   <button class="btn" id="bGirar">🔄 Girar</button>
+   <button class="btn forte" id="bMostrar">👁️ Mostrar o resultado</button>
+  </div>
+  <div class="grade" id="grade" aria-label="Grade de bolinhas"></div>
+  <div class="estrategia" id="estrategia"></div>
+ </div>
+</section>
+
+<section id="dez">
+ <div class="cartao">
+  <h2>🔟 Somar com o 10</h2>
+  <p class="dica">Em vez de fazer pauzinhos, <b>complete o 10</b> primeiro. O 10 é fácil: depois é só ver o que sobrou.</p>
+  <div class="escolha"><b>Primeiro número</b><span id="selX"></span></div>
+  <div class="escolha"><b>Segundo número</b><span id="selY"></span></div>
+  <div class="acoes"><button class="btn aviso" id="bSortear">🎲 Outra conta</button><button class="btn forte" id="bPassos">👣 Mostrar os passos</button></div>
+ </div>
+ <div class="cartao">
+  <div class="frase" id="fraseDez"></div>
+  <div class="quadros" id="quadros"></div>
+  <div class="passos" id="passos"></div>
+ </div>
+</section>
+
+<section id="mapa">
+ <div class="cartao">
+  <h2>🗺️ Mapa da tabuada</h2>
+  <p class="dica">Toque numa conta para <b>ver</b> ela. Repare: o mapa é espelhado — <b>7 × 8</b> e <b>8 × 7</b> dão o mesmo. Comece pelas âncoras (×1, ×2, ×5, ×10): elas ajudam a descobrir as outras.</p>
+  <div class="legenda"><span class="l-sei">Já sei (acertei 3 seguidas)</span><span class="l-tre">Treinando</span><span>Ainda não treinei</span></div>
+  <div class="mapa" id="gradeMapa"></div>
+  <p class="frase" style="font-size:22px" id="resumoMapa"></p>
+ </div>
+</section>
+
+<section id="desafio">
+ <div class="cartao">
+  <h2>🎯 Desafio</h2>
+  <p class="dica">Sem pressa e sem relógio. Se errar, a gente <b>vê a conta juntas</b>.</p>
+  <div class="escolha"><b>Tabuadas</b><span class="tabs" id="tabs"></span></div>
+  <div class="escolha"><b>Nível</b>
+   <span class="tabs" id="niveis">
+    <label><input type="radio" name="nivel" value="1" checked> 1 · vejo a figura</label>
+    <label><input type="radio" name="nivel" value="2"> 2 · a figura some</label>
+    <label><input type="radio" name="nivel" value="3"> 3 · só números</label>
+   </span></div>
+ </div>
+ <div class="cartao">
+  <div class="pergunta" id="pergunta"></div>
+  <div class="grade" id="gradeDesafio" aria-label="Figura da conta"></div>
+  <div class="resposta" id="resposta" aria-live="polite"></div>
+  <div class="teclado" id="teclado"></div>
+  <div class="retorno" id="retorno" aria-live="polite"></div>
+  <div class="estrategia" id="estrDesafio" hidden></div>
+  <div class="acoes"><button class="btn forte" id="bProxima" hidden>Próxima ➜</button></div>
+ </div>
+</section>
+
+<section id="pais" class="pais">
+ <div class="cartao">
+  <h2>👨‍👩‍👧 Para os pais</h2>
+  <p>O método está explicado no <b>Guia para os pais</b> (arquivo <code>Guia_para_os_pais.pdf</code>, nesta mesma pasta). Em resumo:</p>
+  <ol>
+   <li><b>Primeiro com as mãos</b> (feijões, tampinhas, Lego): montar a conta em grupos iguais.</li>
+   <li><b>Depois com desenho</b>: as grades e os quadros de 10 deste aplicativo.</li>
+   <li><b>Por último só números</b>: o nível 3 do Desafio.</li>
+  </ol>
+  <p>10 a 15 minutos por dia valem mais do que uma hora no fim de semana. Elogie a <b>estratégia</b> ("você partiu no 5!"), não a rapidez.</p>
+  <p>O progresso fica salvo <b>só neste navegador</b>, neste computador.</p>
+  <div class="acoes"><button class="btn aviso" id="bZerar">Apagar o progresso</button></div>
+ </div>
+</section>
+</main>
+
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id);
+const CHAVE='ester-matematica:v1';
+let dados={fatos:{},estrelas:0};
+try{const s=JSON.parse(localStorage.getItem(CHAVE)||'null');if(s&&s.fatos)dados=s}catch(e){}
+function salvar(){try{localStorage.setItem(CHAVE,JSON.stringify(dados))}catch(e){}$('nEstrelas').textContent=dados.estrelas}
+salvar();
+
+/* ---------- telas ---------- */
+document.querySelectorAll('nav [data-tela]').forEach(b=>b.onclick=()=>tela(b.dataset.tela));
+function tela(id){document.querySelectorAll('nav [data-tela]').forEach(b=>b.classList.toggle('on',b.dataset.tela===id));
+  document.querySelectorAll('main>section').forEach(s=>s.classList.toggle('on',s.id===id));
+  if(id==='mapa')desenharMapa();if(id==='desafio'&&!atual)novaPergunta()}
+
+function seletor(el,valor,classe,aoMudar){el.innerHTML='';for(let n=1;n<=10;n++){const b=document.createElement('button');b.className='num '+classe+(n===valor?' on':'');b.textContent=n;b.setAttribute('aria-label',String(n));
+  b.onclick=()=>{[...el.children].forEach(x=>x.classList.remove('on'));b.classList.add('on');aoMudar(n)};el.appendChild(b)}}
+function marcar(el,valor){[...el.children].forEach((x,i)=>x.classList.toggle('on',i+1===valor))}
+
+/* ---------- estratégia: escolhe o fator mais fácil como "grupos" (gira a conta se ajudar) ---------- */
+// posição de cada número na ordem de facilidade 1, 10, 2, 5, 4, 9, 3, 6, 7, 8 (índice = o número)
+const FACIL=[99,0,2,6,4,3,7,8,9,5,1];
+function estrategia(a,b){
+  let giro='';if(FACIL[b]<FACIL[a]){giro=`🔄 Gire: ${a} × ${b} é o mesmo que ${b} × ${a}. `;[a,b]=[b,a]}
+  const p=a*b;let t;
+  if(a===1)t=`1 grupo de ${b} é só o ${b}.`;
+  else if(a===10)t=`10 grupos de ${b} = ${b} dezenas = ${p}.`;
+  else if(a===2)t=`2 grupos é o DOBRO: ${b} + ${b} = ${p}.`;
+  else if(a===5)t=`5 é a METADE de 10: 10 × ${b} = ${10*b}; a metade é ${p}.`;
+  else if(a===4)t=`4 é o dobro do dobro: dobro de ${b} = ${2*b}; dobro de ${2*b} = ${p}.`;
+  else if(a===9)t=`9 é 10 menos 1: 10 × ${b} = ${10*b}; tira 1 grupo de ${b} → ${p}.`;
+  else if(a===3)t=`3 = 2 + 1: dobro de ${b} = ${2*b}; mais um grupo de ${b} → ${p}.`;
+  else t=`Parta no 5: 5 × ${b} = ${5*b}; mais ${a-5} × ${b} = ${(a-5)*b} → ${p}.`;
+  return {texto:giro+t,a,b};
+}
+/* como a figura mostra a estratégia: onde partir (cor 2) e quantas linhas "fantasma" */
+function plano(a){if(a>=6&&a<=8)return{partir:5,fant:0};if(a===4||a===3)return{partir:2,fant:0};if(a===2)return{partir:1,fant:0};if(a===9)return{partir:0,fant:1};if(a===5)return{partir:0,fant:5};return{partir:0,fant:0}}
+
+function desenharGrade(el,a,b,{pulo=true,partir=false}={}){
+  if(partir){const e=estrategia(a,b);a=e.a;b=e.b} // com a estratégia, a figura gira junto com a dica ("🔄 Gire")
+  const pl=partir?plano(a):{partir:0,fant:0};el.innerHTML='';
+  const total=a+pl.fant;
+  for(let r=0;r<total;r++){const fant=r>=a,p2=!fant&&pl.partir&&r>=pl.partir;
+    const lin=document.createElement('div');lin.className='linha'+(r===5?' sep5':'');
+    for(let c=0;c<b;c++){const d=document.createElement('span');d.className='bol'+(fant?' fant':p2?' p2':'')+(c===5?' gap':'');lin.appendChild(d)}
+    const rot=document.createElement('span');rot.className='rot'+(fant?' fant':p2?' p2':'');
+    rot.textContent=fant?(a===9?`10º grupo: tira ${b}`:`até 10 grupos`):pulo?String((r+1)*b):'';
+    lin.appendChild(rot);el.appendChild(lin)}
+  el.setAttribute('aria-label',`${a} grupos de ${b} bolinhas`)}
+
+/* ---------- 👀 Ver a conta ---------- */
+let A=3,B=4,mostrar=false,pulo=true,partir=false;
+function ver(){const r=A*B;
+  $('frase').innerHTML=`<span class="g">${A}</span> grupos de <span class="c">${B}</span> = <span class="g">${A}</span> × <span class="c">${B}</span> = <span class="r">${mostrar?r:'?'}</span>`;
+  desenharGrade($('grade'),A,B,{pulo:pulo&&mostrar,partir});
+  const e=estrategia(A,B);$('estrategia').textContent=mostrar?'💡 '+e.texto:'💡 Tente achar o total antes de mostrar. Dica: use os grupos de 5!';
+  $('bPulo').setAttribute('aria-pressed',String(pulo));$('bPartir').setAttribute('aria-pressed',String(partir))}
+seletor($('selA'),A,'az',n=>{A=n;mostrar=false;ver()});seletor($('selB'),B,'',n=>{B=n;mostrar=false;ver()});
+$('bPulo').onclick=()=>{pulo=!pulo;ver()};
+// ao partir, se a estratégia pede para girar, gira tudo (frase, botões e figura), para a criança ver uma coisa só
+$('bPartir').onclick=()=>{partir=!partir;if(partir){const e=estrategia(A,B);if(e.a!==A){A=e.a;B=e.b;marcar($('selA'),A);marcar($('selB'),B)}}ver()};
+$('bGirar').onclick=()=>{[A,B]=[B,A];marcar($('selA'),A);marcar($('selB'),B);ver()};
+$('bMostrar').onclick=()=>{mostrar=true;ver()};
+window.verConta=(a,b)=>{A=a;B=b;mostrar=true;partir=true;marcar($('selA'),A);marcar($('selB'),B);ver();tela('ver')};
+ver();
+
+/* ---------- 🔟 Somar com o 10 ---------- */
+let X=8,Y=5,passos=false;
+function dez(){const s=X+Y;
+  $('fraseDez').innerHTML=`<span style="color:var(--azul)">${X}</span> + <span style="color:var(--laranja)">${Y}</span> = <span style="color:var(--verde)">${passos?s:'?'}</span>`;
+  const n=Math.ceil(Math.max(s,1)/10),q=$('quadros');q.innerHTML='';
+  for(let k=0;k<Math.max(n,2);k++){const f=document.createElement('div');f.className='q10';
+    for(let i=0;i<10;i++){const pos=k*10+i,c=document.createElement('i');if(pos<X)c.className='a';else if(pos<s)c.className='b';f.appendChild(c)}q.appendChild(f)}
+  const falta=10-X;
+  if(!passos){$('passos').innerHTML='Quantas bolinhas laranja cabem para <b>completar o 10</b>?';return}
+  if(X>=10||s<=10||falta<=0){$('passos').innerHTML=`<span class="a">${X}</span> + <span class="b">${Y}</span> = <span class="r">${s}</span>`;return}
+  $('passos').innerHTML=`① <span class="a">${X}</span> + <span class="b">${falta}</span> = <span class="r">10</span> (completei o 10)<br>② sobraram <span class="b">${Y-falta}</span><br>③ <span class="r">10</span> + <span class="b">${Y-falta}</span> = <span class="r">${s}</span>`}
+seletor($('selX'),X,'az',n=>{X=n;passos=false;dez()});seletor($('selY'),Y,'',n=>{Y=n;passos=false;dez()});
+$('bPassos').onclick=()=>{passos=true;dez()};
+$('bSortear').onclick=()=>{do{X=2+Math.floor(Math.random()*8);Y=2+Math.floor(Math.random()*8)}while(X+Y<=10);marcar($('selX'),X);marcar($('selY'),Y);passos=false;dez()};
+dez();
+
+/* ---------- 🗺️ Mapa ---------- */
+const chave=(a,b)=>Math.min(a,b)+'x'+Math.max(a,b); // 3×7 e 7×3 são o mesmo fato
+function estado(a,b){const f=dados.fatos[chave(a,b)];if(!f)return'';return f.seq>=3?'sei':'tre'}
+function desenharMapa(){const g=$('gradeMapa');g.innerHTML='<div class="cab">×</div>';
+  for(let c=1;c<=10;c++)g.insertAdjacentHTML('beforeend',`<div class="cab">${c}</div>`);
+  for(let r=1;r<=10;r++){g.insertAdjacentHTML('beforeend',`<div class="cab">${r}</div>`);
+    for(let c=1;c<=10;c++){const b=document.createElement('button');const st=estado(r,c);
+      b.className=(st?st:'')+([1,2,5,10].includes(r)||[1,2,5,10].includes(c)?' ancora':'');b.textContent=r*c;b.title=`${r} × ${c}`;b.setAttribute('aria-label',`${r} vezes ${c} igual a ${r*c}`);
+      b.onclick=()=>window.verConta(r,c);g.appendChild(b)}}
+  let sei=0;for(let a=1;a<=10;a++)for(let b=a;b<=10;b++)if(estado(a,b)==='sei')sei++;
+  $('resumoMapa').innerHTML=`Contas diferentes na tabuada até 10: <b>55</b> (não 100, por causa do espelho). Você já sabe <b>${sei}</b>.`}
+
+/* ---------- 🎯 Desafio ---------- */
+let escolhidas=new Set([2,5,10]),atual=null,digitado='',errouEsta=false,timer=0;
+$('tabs').innerHTML=[...Array(10)].map((_,i)=>`<label><input type="checkbox" value="${i+1}" ${escolhidas.has(i+1)?'checked':''}> ${i+1}</label>`).join('');
+$('tabs').addEventListener('change',()=>{escolhidas=new Set([...$('tabs').querySelectorAll('input:checked')].map(x=>+x.value));if(!escolhidas.size){escolhidas.add(2);$('tabs').querySelector('input[value="2"]').checked=true}novaPergunta()});
+$('niveis').addEventListener('change',()=>novaPergunta());
+const nivel=()=>+document.querySelector('input[name="nivel"]:checked').value;
+function peso(a,b){const f=dados.fatos[chave(a,b)];if(!f)return 3;return f.seq>=3?1:4} // o que ainda não sabe aparece mais
+function novaPergunta(){clearTimeout(timer);const lista=[];
+  for(const t of escolhidas)for(let n=1;n<=10;n++)for(let k=0;k<peso(t,n);k++)lista.push([t,n]);
+  let q;do{q=lista[Math.floor(Math.random()*lista.length)]}while(atual&&lista.length>1&&q[0]===atual.t&&q[1]===atual.n);
+  atual={t:q[0],n:q[1]};const [a,b]=Math.random()<.5?[q[0],q[1]]:[q[1],q[0]];atual.a=a;atual.b=b; // a ordem varia: 7×3 e 3×7
+  digitado='';errouEsta=false;$('resposta').textContent='';$('retorno').textContent='';$('retorno').className='retorno';$('estrDesafio').hidden=true;$('bProxima').hidden=true;
+  $('pergunta').textContent=`${a} × ${b} = ?`;
+  const g=$('gradeDesafio');if(nivel()===3){g.innerHTML='';g.hidden=true}else{g.hidden=false;desenharGrade(g,a,b,{pulo:false});g.classList.remove('oculta');if(nivel()===2)timer=setTimeout(()=>g.classList.add('oculta'),3000)}}
+function registrar(ok){const k=chave(atual.a,atual.b),f=dados.fatos[k]||(dados.fatos[k]={ok:0,erro:0,seq:0});if(ok){f.ok++;f.seq++;dados.estrelas++}else{f.erro++;f.seq=0}salvar()}
+function conferir(){if(!digitado||!atual||!$('bProxima').hidden)return;const r=atual.a*atual.b,certo=+digitado===r;
+  if(certo){if(!errouEsta)registrar(true);$('retorno').textContent=`⭐ Isso! ${atual.a} grupos de ${atual.b} = ${r}`;$('retorno').className='retorno bom';$('bProxima').hidden=false;$('bProxima').focus()}
+  else{if(!errouEsta)registrar(false);errouEsta=true;clearTimeout(timer);const g=$('gradeDesafio');g.hidden=false;g.classList.remove('oculta');desenharGrade(g,atual.a,atual.b,{pulo:true,partir:true});
+    const e=estrategia(atual.a,atual.b);$('estrDesafio').hidden=false;$('estrDesafio').textContent='💡 Vamos ver juntas: '+e.texto;
+    $('retorno').textContent='Quase! Olhe a figura e tente de novo.';$('retorno').className='retorno ver';digitado='';$('resposta').textContent=''}}
+const teclas=['7','8','9','4','5','6','1','2','3','⌫','0','OK'];
+$('teclado').innerHTML=teclas.map(t=>`<button class="${t==='OK'?'ok':''}" data-t="${t}" aria-label="${t==='⌫'?'apagar':t==='OK'?'conferir':t}">${t}</button>`).join('');
+function tecla(t){if(!$('bProxima').hidden)return;if(t==='OK')return conferir();if(t==='⌫')digitado=digitado.slice(0,-1);else if(digitado.length<3)digitado+=t;$('resposta').textContent=digitado}
+$('teclado').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(b)tecla(b.dataset.t)});
+addEventListener('keydown',e=>{if(!$('desafio').classList.contains('on'))return;if(/^[0-9]$/.test(e.key))tecla(e.key);else if(e.key==='Backspace')tecla('⌫');else if(e.key==='Enter'){e.preventDefault();if(!$('bProxima').hidden)novaPergunta();else tecla('OK')}});
+$('bProxima').onclick=novaPergunta;
+
+$('bZerar').onclick=()=>{if(confirm('Apagar todo o progresso e as estrelas da Ester neste navegador?')){dados={fatos:{},estrelas:0};salvar()}};
+window.matematicaAPI={estrategia,dados:()=>dados,atual:()=>atual,tela};
+})();
+</script>
+</body>
+</html>
