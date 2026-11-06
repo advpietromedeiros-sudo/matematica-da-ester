@@ -2,11 +2,11 @@
 
 > Estado, tarefas e o que ficou rodando. Atualizado a cada ~15 min de trabalho e no fechamento.
 
-**Última atualização:** 06/11/2026, 16h10.
+**Última atualização:** 06/11/2026, 16h04.
 
 ## Estado
 
-- 06/11/2026, 16h10: **estudo feito** para o formato de lições curtas, no estilo do Duolingo, com ranking entre
+- 06/11/2026, 16h04: **estudo feito** para o formato de lições curtas, no estilo do Duolingo, com ranking entre
   amigas (`docs/ESTUDO_LICOES_E_ONLINE.md`). **Nada implementado ainda**: três decisões do titular estão em aberto
   (`docs/DECISOES.md`).
 - Jornada atual: 6 mundos com 39 fases, treino diário da tabuada com repetição espaçada, conta armada passo a
