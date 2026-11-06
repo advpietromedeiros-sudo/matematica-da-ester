@@ -6,10 +6,24 @@
 
 | id | decisão | quem | aberta em | o que trava |
 | --- | --- | --- | --- | --- |
-| D-001 | O nome do jogo (candidatos em `docs/ESTUDO_LICOES_E_ONLINE.md`, §5) | titular | 06/11/2026 | O `marca/marca.json` e a etapa 1 |
-| D-002 | A versão online vira funcionalidade do portal (contraria o "uso familiar" do `CLAUDE.md`) | titular | 06/11/2026 | A etapa 3 |
-| D-003 | "Vidas" que acabam com o erro: usar ou não (recomendação: não) | titular | 06/11/2026 | O desenho da lição, na etapa 1 |
+| D-004 | Consulta ao INPI sobre o nome "Contaventura" antes de publicar | titular | 06/11/2026 | A publicação (etapa 4) |
 
 ## Tomadas
 
-Nenhuma registrada até 06/11/2026.
+### D-001 — O nome do jogo é Contaventura (06/11/2026, 16h13, titular)
+
+Escolhido entre os quatro candidatos do estudo (`docs/ESTUDO_LICOES_E_ONLINE.md`, §5), na opção marcada como
+recomendada. O nome mora em `marca/marca.json` (HARNESS §E6); o código escreve `[marca]`. A busca na web de
+06/11/2026 não achou app com esse nome, mas **não houve consulta ao INPI** (D-004).
+
+### D-002 — A versão online vira funcionalidade do portal (06/11/2026, 16h13, titular)
+
+Resposta do titular: *"Sim, vai para o portal"*. Isso substitui o "uso familiar" do `CLAUDE.md` deste projeto. O
+desenho fica como no estudo, §4: conta do responsável, perfil da criança só com apelido e personagem, grupo de
+amigas por código de convite, sem chat, liga semanal. No portal, entra no inventário (D-003 de lá). A publicação
+é do operador do servidor.
+
+### D-003 — Sem "vidas" (06/11/2026, 16h13, titular)
+
+Resposta do titular: *"Não usar vidas"*. Errar mostra a ajuda (a figura volta e a dica aparece), como no método
+atual. Nada se perde por errar.

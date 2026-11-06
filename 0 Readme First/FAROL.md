@@ -14,7 +14,8 @@
 
 ## Próximas tarefas, em ordem
 
-1. Titular decidir D-001 (nome), D-002 (vira parte do portal?) e D-003 (vidas).
+1. ✅ 06/11/2026, 16h13 — decididas: nome em `marca/marca.json` (D-001), vira parte do portal (D-002), sem
+   vidas (D-003). Em aberto: consulta ao INPI antes de publicar (D-004).
 2. Etapa 1 do plano: lições curtas no arquivo atual, sem servidor.
 3. Etapa 2: revisão por meia-vida.
 4. Etapa 3: versão online no portal (depende da D-002 e da D-003 do portal).

@@ -21,4 +21,8 @@
   plantado); `node testes/gerar_guia.mjs` (sai 0 só com o PDF completo).
 - **Idade:** 8 anos (titular, 01/11/2026).
 - ⚠️ O nome da pasta tem espaço e acento, como o titular pediu (§F58 recomenda sem): caminho sempre entre aspas.
-- **Uso familiar** — não é funcionalidade do portal, salvo ordem em contrário do titular.
+- ~~**Uso familiar** — não é funcionalidade do portal, salvo ordem em contrário do titular.~~ ⚠️ Substituído
+  em 06/11/2026, 16h13 (D-002): a versão online, para várias crianças e com ranking entre amigas, **vira
+  funcionalidade do portal**. O nome do jogo é **dado** (`marca/marca.json`, D-001), sem "vidas" (D-003).
+  Estudo e plano: `docs/ESTUDO_LICOES_E_ONLINE.md`. Registros: `0 Readme First/FAROL.md`, `docs/DECISOES.md`,
+  `docs/PROCEDENCIA.md`.
