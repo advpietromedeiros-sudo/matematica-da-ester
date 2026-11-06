@@ -1,6 +1,4 @@
 {
-  "nome": "Contaventura",
-  "decidido_em": "06/11/2026",
-  "decisao": "D-001 em docs/DECISOES.md",
-  "historico": []
+  "nota": "Desde 06/11/2026, 16h34, o nome do jogo mora num lugar só: no portal, em webapp/public/jogos/matematica/marca.js (repositório pietromedeiros-portal). Este arquivo ficou como ponteiro para não haver duas fontes do nome (HARNESS §E6).",
+  "fonte": "pietromedeiros-portal/webapp/public/jogos/matematica/marca.js"
 }

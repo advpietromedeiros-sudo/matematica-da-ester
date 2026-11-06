@@ -13,7 +13,9 @@
 ### D-001 — O nome do jogo é Contaventura (06/11/2026, 16h13, titular)
 
 Escolhido entre os quatro candidatos do estudo (`docs/ESTUDO_LICOES_E_ONLINE.md`, §5), na opção marcada como
-recomendada. O nome mora em `marca/marca.json` (HARNESS §E6); o código escreve `[marca]`. A busca na web de
+recomendada. O nome mora em `marca/marca.json` (HARNESS §E6); o código escreve `[marca]`.
+⚠️ **Ponteiro (06/11/2026, 16h34):** com o jogo indo para o portal, a fonte única do nome passou a ser
+`pietromedeiros-portal/webapp/public/jogos/matematica/marca.js`; o `marca/marca.json` daqui virou ponteiro. A busca na web de
 06/11/2026 não achou app com esse nome, mas **não houve consulta ao INPI** (D-004).
 
 ### D-002 — A versão online vira funcionalidade do portal (06/11/2026, 16h13, titular)
